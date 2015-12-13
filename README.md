@@ -249,11 +249,11 @@ Get this:
 - [x] simple fields
 - [x] object fields
 - [x] array fields
-- [ ] constraints (see [#1](issues/1))
-- [ ] references (see [#3](issues/3))
-- [ ] versions (see [#2](issues/2))
-- [ ] enums (see [#5](issues/5))
-- [ ] generate java from metadata (see [#4](issues/4)). This is lowest priority since java to
+- [ ] constraints (see [#1](../../issues/1))
+- [ ] references (see [#3](../../issues/3))
+- [ ] versions (see [#2](../../issues/2))
+- [ ] enums (see [#5](../../issues/5))
+- [ ] generate java from metadata (see [#4](../../issues/4)). This is lowest priority since java to
       metadata is lossy therefore going the other direction will require a small amount of "magic"
       to compute that missing information. For this reason I think it's better to simply use Java
       classes as the starting point / source of truth since they're much easier to write, usable in
