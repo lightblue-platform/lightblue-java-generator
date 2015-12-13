@@ -33,7 +33,7 @@ public class JavaBeansBeanField implements BeanField {
 
   @Override
   public boolean isRequired() {
-    return property.getReadMethod().getReturnType().isAnnotationPresent(Required.class);
+    return property.getReadMethod().isAnnotationPresent(Required.class);
   }
 
   @Override
