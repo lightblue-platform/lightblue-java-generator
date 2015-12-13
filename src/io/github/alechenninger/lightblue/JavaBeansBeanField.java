@@ -5,11 +5,11 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Optional;
 
-public class IntrospectorBeanField implements BeanField {
+public class JavaBeansBeanField implements BeanField {
   private final PropertyDescriptor property;
   private final BeanReader beanReader;
 
-  public IntrospectorBeanField(PropertyDescriptor propertyDescriptor, BeanReader beanReader) {
+  public JavaBeansBeanField(PropertyDescriptor propertyDescriptor, BeanReader beanReader) {
     this.property = propertyDescriptor;
     this.beanReader = beanReader;
   }

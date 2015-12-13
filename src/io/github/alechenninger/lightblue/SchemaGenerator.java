@@ -35,12 +35,12 @@ public class SchemaGenerator {
   public EntitySchema getSchema(Class<?> entity) {
       EntitySchema schema = new EntitySchema(beanReader.getEntityName(entity));
 
-      addFieldsForClass(entity, schema.getFields());
+      addLightblueFieldsForClass(entity, schema.getFields());
 
       return schema;
   }
 
-  private void addFieldsForClass(Class<?> type, Fields fields) {
+  private void addLightblueFieldsForClass(Class<?> type, Fields fields) {
     for (BeanField beanField : beanReader.readBeanFields(type)) {
       fields.addNew(getLightblueFieldForBeanField(beanField));
     }
@@ -65,7 +65,7 @@ public class SchemaGenerator {
 
       if (ObjectType.TYPE.equals(arrayElementType)) {
         ObjectArrayElement arrayElement = new ObjectArrayElement();
-        addFieldsForClass(elementJavaType, arrayElement.getFields());
+        addLightblueFieldsForClass(elementJavaType, arrayElement.getFields());
         return new ArrayField(beanField.name(), arrayElement);
       }
 
@@ -73,7 +73,7 @@ public class SchemaGenerator {
     }
 
     ObjectField objectField = new ObjectField(beanField.name());
-    addFieldsForClass(javaType, objectField.getFields());
+    addLightblueFieldsForClass(javaType, objectField.getFields());
 
     return objectField;
   }

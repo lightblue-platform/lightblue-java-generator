@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class IntrospectorBeanReader implements BeanReader {
+public class JavaBeansBeanReader implements BeanReader {
   @Override
   public String getEntityName(Class<?> bean) {
     return Introspector.decapitalize(bean.getSimpleName());
@@ -35,7 +35,7 @@ public class IntrospectorBeanReader implements BeanReader {
     }
   }
 
-  private IntrospectorBeanField newBeanField(PropertyDescriptor property) {
-    return new IntrospectorBeanField(property, this);
+  private JavaBeansBeanField newBeanField(PropertyDescriptor property) {
+    return new JavaBeansBeanField(property, this);
   }
 }
