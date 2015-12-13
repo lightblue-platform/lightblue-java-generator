@@ -20,67 +20,60 @@ import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.ObjectType;
 import com.redhat.lightblue.metadata.types.StringType;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Date;
 
 public class SchemaGenerator {
+  private final BeanReader beanReader;
+
+  public SchemaGenerator(BeanReader beanReader) {
+    this.beanReader = beanReader;
+  }
+
   public EntitySchema getSchema(Class<?> entity) {
-    try {
-      EntitySchema schema = new EntitySchema(getEntityName(entity));
+      EntitySchema schema = new EntitySchema(beanReader.getEntityName(entity));
 
       addFieldsForClass(entity, schema.getFields());
 
       return schema;
-    } catch (IntrospectionException e) {
-      throw new SchemaGenerationException(e);
+  }
+
+  private void addFieldsForClass(Class<?> type, Fields fields) {
+    for (BeanField beanField : beanReader.readBeanFields(type)) {
+      fields.addNew(getLightblueFieldForBeanField(beanField));
     }
   }
 
-  private void addFieldsForClass(Class<?> type, Fields fields) throws IntrospectionException {
-    BeanInfo beanInfo = Introspector.getBeanInfo(type, Object.class);
+  private Field getLightblueFieldForBeanField(BeanField beanField) {
+    Class<?> javaType = beanField.javaType();
 
-    for (PropertyDescriptor property : beanInfo.getPropertyDescriptors()) {
-      fields.addNew(getFieldForProperty(property));
-    }
-  }
-
-  private Field getFieldForProperty(PropertyDescriptor property) throws IntrospectionException {
-    Class<?> propertyType = property.getPropertyType();
-
-    Type type = getTypeForClass(propertyType);
+    Type type = getTypeForClass(javaType);
 
     if (isSimpleFieldType(type)) {
-      return new SimpleField(property.getName(), type);
+      return new SimpleField(beanField.name(), type);
     }
 
     if (ArrayType.TYPE.equals(type)) {
-      ParameterizedType parameterizedType = (ParameterizedType)
-          property.getReadMethod().getGenericReturnType();
-      Class arrayElementClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-      Type arrayElementType = getTypeForClass(arrayElementClass);
+      Class<?> elementJavaType = beanField.elementJavaType().get();
+      Type arrayElementType = getTypeForClass(elementJavaType);
 
       if (isSimpleFieldType(arrayElementType)) {
-        return new ArrayField(property.getName(), new SimpleArrayElement(arrayElementType));
+        return new ArrayField(beanField.name(), new SimpleArrayElement(arrayElementType));
       }
 
       if (ObjectType.TYPE.equals(arrayElementType)) {
         ObjectArrayElement arrayElement = new ObjectArrayElement();
-        addFieldsForClass(arrayElementClass, arrayElement.getFields());
-        return new ArrayField(property.getName(), arrayElement);
+        addFieldsForClass(elementJavaType, arrayElement.getFields());
+        return new ArrayField(beanField.name(), arrayElement);
       }
 
       throw new UnsupportedOperationException("Unsupported array element type: " + arrayElementType);
     }
 
-    ObjectField objectField = new ObjectField(property.getName());
-    addFieldsForClass(propertyType, objectField.getFields());
+    ObjectField objectField = new ObjectField(beanField.name());
+    addFieldsForClass(javaType, objectField.getFields());
 
     return objectField;
   }
@@ -129,9 +122,5 @@ public class SchemaGenerator {
 
   private static boolean isSimpleFieldType(Type type) {
     return !(type.equals(ObjectType.TYPE) || type.equals(ArrayType.TYPE));
-  }
-
-  private static String getEntityName(Class<?> entity) {
-    return Introspector.decapitalize(entity.getSimpleName());
   }
 }
