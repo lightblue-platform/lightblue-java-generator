@@ -1,2 +1,6 @@
-rootProject.name = 'lightblue-java-generator'
+rootProject.name = 'lightblue-java-generator-root'
+include 'api'
+findProject(':api')?.name = 'lightblue-java-generator-api'
+include 'lib'
+findProject(':lib')?.name = 'lightblue-java-generator'
 
