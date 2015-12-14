@@ -5,6 +5,7 @@ import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
@@ -41,11 +42,12 @@ public class SchemaGenerator {
   }
 
   public EntitySchema getSchema(Class<?> entity) {
-      EntitySchema schema = new EntitySchema(beanReader.getEntityName(entity));
+    EntitySchema schema = new EntitySchema(beanReader.getEntityName(entity));
+    schema.setStatus(MetadataStatus.ACTIVE);
 
-      addLightblueFieldsForClass(entity, schema.getFields());
+    addLightblueFieldsForClass(entity, schema.getFields());
 
-      return schema;
+    return schema;
   }
 
   private void addLightblueFieldsForClass(Class<?> type, Fields fields) {

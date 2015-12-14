@@ -2,7 +2,6 @@ package io.github.alechenninger.lightblue;
 
 import static org.junit.Assert.assertEquals;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.EntitySchema;
@@ -152,7 +151,7 @@ public class ExampleTest {
         + "        }\n"
         + "    },\n"
         + "    \"name\": \"user\",\n"
-        + "    \"status\": null,\n"
+        + "    \"status\": {\"value\":\"active\"},\n"
         + "    \"version\": null\n"
         + "}"), parser.convert(schema));
   }
