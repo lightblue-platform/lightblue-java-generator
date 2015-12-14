@@ -34,6 +34,7 @@ public class JavaBeansBeanMirror implements BeanMirror {
       PropertyDescriptor[] properties = info.getPropertyDescriptors();
 
       return Arrays.stream(properties)
+          .filter(p -> !p.getReadMethod().isAnnotationPresent(Transient.class))
           .map(this::newFieldMirror)
           .collect(Collectors.toList());
     } catch (IntrospectionException e) {
