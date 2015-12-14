@@ -26,33 +26,39 @@ public class JavaBeansBeanField implements BeanField {
 
   @Override
   public Optional<String> description() {
-    Description description = property.getReadMethod().getAnnotation(Description.class);
+    Description description = property.getWriteMethod().getAnnotation(Description.class);
     return Optional.ofNullable(description)
         .map(Description::value);
   }
 
   @Override
   public boolean isRequired() {
-    return property.getReadMethod().isAnnotationPresent(Required.class);
+    return property.getWriteMethod().isAnnotationPresent(Required.class);
+  }
+
+  @Override
+  public boolean isIdentifying() {
+    return property.getWriteMethod().isAnnotationPresent(Identity.class) ||
+        property.getReadMethod().isAnnotationPresent(Identity.class);
   }
 
   @Override
   public Optional<Integer> minItems() {
-    MinItems minItems = property.getReadMethod().getAnnotation(MinItems.class);
+    MinItems minItems = property.getWriteMethod().getAnnotation(MinItems.class);
     return Optional.ofNullable(minItems)
         .map(MinItems::value);
   }
 
   @Override
   public Optional<Integer> minLength() {
-    MinLength minLength = property.getReadMethod().getAnnotation(MinLength.class);
+    MinLength minLength = property.getWriteMethod().getAnnotation(MinLength.class);
     return Optional.ofNullable(minLength)
         .map(MinLength::value);
   }
 
   @Override
   public Optional<Integer> maxLength() {
-    MaxLength maxLength = property.getReadMethod().getAnnotation(MaxLength.class);
+    MaxLength maxLength = property.getWriteMethod().getAnnotation(MaxLength.class);
     return Optional.ofNullable(maxLength)
         .map(MaxLength::value);
   }

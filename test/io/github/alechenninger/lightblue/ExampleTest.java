@@ -3,6 +3,7 @@ package io.github.alechenninger.lightblue;
 import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -13,29 +14,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 @RunWith(JUnit4.class)
 public class ExampleTest {
 
-  private Extensions extensions;
-  private JSONMetadataParser parser;
+  private Extensions extensions = new Extensions();
+  private JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
+  private JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
+  private ObjectMapper mapper = new ObjectMapper();
 
   @Before
   public void setUp() throws Exception {
-    extensions = new Extensions();
     extensions.addDefaultExtensions();
-    parser = new JSONMetadataParser(extensions, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(true));
   }
 
   @Test
-  public void demonstrateJavaToSchema() {
+  public void demonstrateJavaToSchema() throws IOException {
     SchemaGenerator generator = new SchemaGenerator(new JavaBeansBeanReader());
 
     EntitySchema schema = generator.getSchema(User.class);
 
-    assertEquals("{\n"
+    assertEquals(mapper.readTree("{\n"
         + "    \"access\": {\n"
         + "        \"delete\": [],\n"
         + "        \"find\": [],\n"
@@ -43,24 +45,48 @@ public class ExampleTest {
         + "        \"update\": []\n"
         + "    },\n"
         + "    \"fields\": {\n"
+        + "        \"_id\": {\n"
+        + "            \"constraints\": {\n"
+        + "                \"identity\": true\n"
+        + "            },\n"
+        + "            \"type\": \"string\"\n"
+        + "        },\n"
         + "        \"addresses\": {\n"
+        + "            \"constraints\": {\n"
+        + "                \"minimum\": 1\n"
+        + "            },\n"
         + "            \"items\": {\n"
         + "                \"fields\": {\n"
         + "                    \"address1\": {\n"
+        + "                        \"constraints\": {\n"
+        + "                            \"required\": true\n"
+        + "                        },\n"
         + "                        \"type\": \"string\"\n"
         + "                    },\n"
         + "                    \"address2\": {\n"
         + "                        \"type\": \"string\"\n"
         + "                    },\n"
         + "                    \"city\": {\n"
+        + "                        \"constraints\": {\n"
+        + "                            \"required\": true\n"
+        + "                        },\n"
         + "                        \"type\": \"string\"\n"
         + "                    },\n"
         + "                    \"postalCode\": {\n"
+        + "                        \"constraints\": {\n"
+        + "                            \"required\": true\n"
+        + "                        },\n"
         + "                        \"type\": \"integer\"\n"
         + "                    },\n"
         + "                    \"state\": {\n"
+        + "                        \"constraints\": {\n"
+        + "                            \"required\": true\n"
+        + "                        },\n"
         + "                        \"fields\": {\n"
         + "                            \"code\": {\n"
+        + "                                \"constraints\": {\n"
+        + "                                    \"required\": true\n"
+        + "                                },\n"
         + "                                \"type\": \"string\"\n"
         + "                            },\n"
         + "                            \"name\": {\n"
@@ -83,15 +109,25 @@ public class ExampleTest {
         + "        \"faxNumber\": {\n"
         + "            \"fields\": {\n"
         + "                \"areaCode\": {\n"
+        + "                    \"constraints\": {\n"
+        + "                        \"required\": true\n"
+        + "                    },\n"
         + "                    \"type\": \"integer\"\n"
         + "                },\n"
         + "                \"digits\": {\n"
+        + "                    \"constraints\": {\n"
+        + "                        \"required\": true\n"
+        + "                    },\n"
         + "                    \"type\": \"integer\"\n"
         + "                }\n"
         + "            },\n"
         + "            \"type\": \"object\"\n"
         + "        },\n"
         + "        \"firstName\": {\n"
+        + "            \"constraints\": {\n"
+        + "                \"minLength\": 2,\n"
+        + "                \"required\": true\n"
+        + "            },\n"
         + "            \"type\": \"string\"\n"
         + "        },\n"
         + "        \"lastName\": {\n"
@@ -100,9 +136,15 @@ public class ExampleTest {
         + "        \"phoneNumber\": {\n"
         + "            \"fields\": {\n"
         + "                \"areaCode\": {\n"
+        + "                    \"constraints\": {\n"
+        + "                        \"required\": true\n"
+        + "                    },\n"
         + "                    \"type\": \"integer\"\n"
         + "                },\n"
         + "                \"digits\": {\n"
+        + "                    \"constraints\": {\n"
+        + "                        \"required\": true\n"
+        + "                    },\n"
         + "                    \"type\": \"integer\"\n"
         + "                }\n"
         + "            },\n"
@@ -112,10 +154,11 @@ public class ExampleTest {
         + "    \"name\": \"user\",\n"
         + "    \"status\": null,\n"
         + "    \"version\": null\n"
-        + "}", parser.convert(schema).toString());
+        + "}"), parser.convert(schema));
   }
 
   static class User {
+    private String _id;
     private String firstName;
     private String lastName;
     private Date birthdate;
@@ -123,10 +166,21 @@ public class ExampleTest {
     private PhoneNumber phoneNumber;
     private PhoneNumber faxNumber;
 
+    public String get_id() {
+      return _id;
+    }
+
+    @Identity
+    public void set_id(String _id) {
+      this._id = _id;
+    }
+
     public String getFirstName() {
       return firstName;
     }
 
+    @Required
+    @MinLength(2)
     public void setFirstName(String firstName) {
       this.firstName = firstName;
     }
@@ -151,6 +205,7 @@ public class ExampleTest {
       return addresses;
     }
 
+    @MinItems(1)
     public void setAddresses(List<Address> addresses) {
       this.addresses = addresses;
     }
@@ -191,6 +246,7 @@ public class ExampleTest {
         return address1;
       }
 
+      @Required
       public void setAddress1(String address1) {
         this.address1 = address1;
       }
@@ -207,6 +263,7 @@ public class ExampleTest {
         return postalCode;
       }
 
+      @Required
       public void setPostalCode(int postalCode) {
         this.postalCode = postalCode;
       }
@@ -215,6 +272,7 @@ public class ExampleTest {
         return city;
       }
 
+      @Required
       public void setCity(String city) {
         this.city = city;
       }
@@ -223,6 +281,7 @@ public class ExampleTest {
         return state;
       }
 
+      @Required
       public void setState(State state) {
         this.state = state;
       }
@@ -235,6 +294,7 @@ public class ExampleTest {
           return code;
         }
 
+        @Required
         public void setCode(String code) {
           this.code = code;
         }
@@ -257,6 +317,7 @@ public class ExampleTest {
         return areaCode;
       }
 
+      @Required
       public void setAreaCode(int areaCode) {
         this.areaCode = areaCode;
       }
@@ -265,6 +326,7 @@ public class ExampleTest {
         return digits;
       }
 
+      @Required
       public void setDigits(int digits) {
         this.digits = digits;
       }

@@ -12,6 +12,8 @@ public interface BeanField {
 
   boolean isRequired();
 
+  boolean isIdentifying();
+
   Optional<Integer> minItems();
 
   Optional<Integer> minLength();

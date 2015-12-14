@@ -5,6 +5,7 @@ Given this:
 
 ```java
 static class User {
+  private String _id;
   private String firstName;
   private String lastName;
   private Date birthdate;
@@ -12,10 +13,21 @@ static class User {
   private PhoneNumber phoneNumber;
   private PhoneNumber faxNumber;
 
+  public String get_id() {
+    return _id;
+  }
+
+  @Identity
+  public void set_id(String _id) {
+    this._id = _id;
+  }
+
   public String getFirstName() {
     return firstName;
   }
 
+  @Required
+  @MinLength(2)
   public void setFirstName(String firstName) {
     this.firstName = firstName;
   }
@@ -40,6 +52,7 @@ static class User {
     return addresses;
   }
 
+  @MinItems(1)
   public void setAddresses(List<Address> addresses) {
     this.addresses = addresses;
   }
@@ -80,6 +93,7 @@ static class User {
       return address1;
     }
 
+    @Required
     public void setAddress1(String address1) {
       this.address1 = address1;
     }
@@ -96,6 +110,7 @@ static class User {
       return postalCode;
     }
 
+    @Required
     public void setPostalCode(int postalCode) {
       this.postalCode = postalCode;
     }
@@ -104,6 +119,7 @@ static class User {
       return city;
     }
 
+    @Required
     public void setCity(String city) {
       this.city = city;
     }
@@ -112,6 +128,7 @@ static class User {
       return state;
     }
 
+    @Required
     public void setState(State state) {
       this.state = state;
     }
@@ -124,6 +141,7 @@ static class User {
         return code;
       }
 
+      @Required
       public void setCode(String code) {
         this.code = code;
       }
@@ -146,6 +164,7 @@ static class User {
       return areaCode;
     }
 
+    @Required
     public void setAreaCode(int areaCode) {
       this.areaCode = areaCode;
     }
@@ -154,6 +173,7 @@ static class User {
       return digits;
     }
 
+    @Required
     public void setDigits(int digits) {
       this.digits = digits;
     }
@@ -172,24 +192,48 @@ Get this:
         "update": []
     },
     "fields": {
+        "_id": {
+            "constraints": {
+                "identity": true
+            },
+            "type": "string"
+        },
         "addresses": {
+            "constraints": {
+                "minimum": 1
+            },
             "items": {
                 "fields": {
                     "address1": {
+                        "constraints": {
+                            "required": true
+                        },
                         "type": "string"
                     },
                     "address2": {
                         "type": "string"
                     },
                     "city": {
+                        "constraints": {
+                            "required": true
+                        },
                         "type": "string"
                     },
                     "postalCode": {
+                        "constraints": {
+                            "required": true
+                        },
                         "type": "integer"
                     },
                     "state": {
+                        "constraints": {
+                            "required": true
+                        },
                         "fields": {
                             "code": {
+                                "constraints": {
+                                    "required": true
+                                },
                                 "type": "string"
                             },
                             "name": {
@@ -212,15 +256,25 @@ Get this:
         "faxNumber": {
             "fields": {
                 "areaCode": {
+                    "constraints": {
+                        "required": true
+                    },
                     "type": "integer"
                 },
                 "digits": {
+                    "constraints": {
+                        "required": true
+                    },
                     "type": "integer"
                 }
             },
             "type": "object"
         },
         "firstName": {
+            "constraints": {
+                "minLength": 2,
+                "required": true
+            },
             "type": "string"
         },
         "lastName": {
@@ -229,9 +283,15 @@ Get this:
         "phoneNumber": {
             "fields": {
                 "areaCode": {
+                    "constraints": {
+                        "required": true
+                    },
                     "type": "integer"
                 },
                 "digits": {
+                    "constraints": {
+                        "required": true
+                    },
                     "type": "integer"
                 }
             },
@@ -249,10 +309,11 @@ Get this:
 - [x] simple fields
 - [x] object fields
 - [x] array fields
-- [ ] constraints (see [#1](../../issues/1))
+- [x] constraints (see [#1](../../issues/1))
 - [ ] references (see [#3](../../issues/3))
 - [ ] versions (see [#2](../../issues/2))
 - [ ] enums (see [#5](../../issues/5))
+- [ ] generators (see [#6](../../issues/6))
 - [ ] generate java from metadata (see [#4](../../issues/4)). This is lowest priority since java to
       metadata is lossy therefore going the other direction will require a small amount of "magic"
       to compute that missing information. For this reason I think it's better to simply use Java
