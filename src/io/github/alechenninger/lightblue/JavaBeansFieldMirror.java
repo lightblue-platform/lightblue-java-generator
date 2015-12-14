@@ -5,13 +5,13 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Optional;
 
-public class JavaBeansBeanField implements BeanField {
+public class JavaBeansFieldMirror implements FieldMirror {
   private final PropertyDescriptor property;
-  private final BeanReader beanReader;
+  private final Reflector reflector;
 
-  public JavaBeansBeanField(PropertyDescriptor propertyDescriptor, BeanReader beanReader) {
+  public JavaBeansFieldMirror(PropertyDescriptor propertyDescriptor, Reflector reflector) {
     this.property = propertyDescriptor;
-    this.beanReader = beanReader;
+    this.reflector = reflector;
   }
 
   @Override
@@ -64,8 +64,8 @@ public class JavaBeansBeanField implements BeanField {
   }
 
   @Override
-  public Collection<BeanField> childBeanFields() {
-    return beanReader.readBeanFields(property.getPropertyType());
+  public Collection<FieldMirror> childBeanFields() {
+    return reflector.reflect(property.getPropertyType()).getFields();
   }
 
   @Override

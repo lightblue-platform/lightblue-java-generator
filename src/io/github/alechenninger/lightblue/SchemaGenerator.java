@@ -1,16 +1,7 @@
 package io.github.alechenninger.lightblue;
 
-import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.EntitySchema;
-import com.redhat.lightblue.metadata.Field;
-import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.Fields;
-import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.ObjectArrayElement;
-import com.redhat.lightblue.metadata.ObjectField;
-import com.redhat.lightblue.metadata.SimpleArrayElement;
-import com.redhat.lightblue.metadata.SimpleField;
-import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
@@ -35,83 +26,93 @@ import java.util.Date;
 import java.util.List;
 
 public class SchemaGenerator {
-  private final BeanReader beanReader;
+  private final Reflector reflector;
 
-  public SchemaGenerator(BeanReader beanReader) {
-    this.beanReader = beanReader;
+  public SchemaGenerator(Reflector reflector) {
+    this.reflector = reflector;
   }
 
   public EntitySchema getSchema(Class<?> entity) {
-    EntitySchema schema = new EntitySchema(beanReader.getEntityName(entity));
+    BeanMirror beanMirror = reflector.reflect(entity);
+    EntitySchema schema = new EntitySchema(beanMirror.getEntityName());
     schema.setStatus(MetadataStatus.ACTIVE);
 
-    addLightblueFieldsForClass(entity, schema.getFields());
+    VersionMirror versionMirror  = beanMirror.getVersion();
+    Collection<String> extendsVersionsCollection = versionMirror.getExtendsVersions();
+    String[] extendsVersionsArr = extendsVersionsCollection.isEmpty()
+        ? null
+        : extendsVersionsCollection.toArray(new String[extendsVersionsCollection.size()]);
+
+    schema.setVersion(
+        new Version(versionMirror.getVersion(), extendsVersionsArr, versionMirror.getChangelog()));
+
+    addLightblueFieldsForClass(beanMirror, schema.getFields());
 
     return schema;
   }
 
-  private void addLightblueFieldsForClass(Class<?> type, Fields fields) {
-    for (BeanField beanField : beanReader.readBeanFields(type)) {
-      Field field = getLightblueFieldForBeanField(beanField);
-      field.setConstraints(getConstraintsForBeanField(beanField));
-      beanField.description().ifPresent(d -> field.getProperties().put("description", d));
+  private void addLightblueFieldsForClass(BeanMirror beanMirror, Fields fields) {
+    for (FieldMirror fieldMirror : beanMirror.getFields()) {
+      Field field = getLightblueFieldForBeanField(fieldMirror);
+      field.setConstraints(getConstraintsForBeanField(fieldMirror));
+      fieldMirror.description().ifPresent(d -> field.getProperties().put("description", d));
 
       fields.addNew(field);
     }
   }
 
-  private Field getLightblueFieldForBeanField(BeanField beanField) {
-    Class<?> javaType = beanField.javaType();
+  private Field getLightblueFieldForBeanField(FieldMirror fieldMirror) {
+    Class<?> javaType = fieldMirror.javaType();
 
     Type type = getTypeForClass(javaType);
 
     if (isSimpleFieldType(type)) {
-      return new SimpleField(beanField.name(), type);
+      return new SimpleField(fieldMirror.name(), type);
     }
 
     if (ArrayType.TYPE.equals(type)) {
-      Class<?> elementJavaType = beanField.elementJavaType().get();
+      Class<?> elementJavaType = fieldMirror.elementJavaType().get();
       Type arrayElementType = getTypeForClass(elementJavaType);
 
       if (isSimpleFieldType(arrayElementType)) {
-        return new ArrayField(beanField.name(), new SimpleArrayElement(arrayElementType));
+        return new ArrayField(fieldMirror.name(), new SimpleArrayElement(arrayElementType));
       }
 
       if (ObjectType.TYPE.equals(arrayElementType)) {
         ObjectArrayElement arrayElement = new ObjectArrayElement();
-        addLightblueFieldsForClass(elementJavaType, arrayElement.getFields());
-        return new ArrayField(beanField.name(), arrayElement);
+        addLightblueFieldsForClass(reflector.reflect(elementJavaType), arrayElement.getFields());
+        return new ArrayField(fieldMirror.name(), arrayElement);
       }
 
       throw new UnsupportedOperationException("Unsupported array element type: " + arrayElementType);
     }
 
-    ObjectField objectField = new ObjectField(beanField.name());
-    addLightblueFieldsForClass(javaType, objectField.getFields());
+    ObjectField objectField = new ObjectField(fieldMirror.name());
+    addLightblueFieldsForClass(reflector.reflect(javaType), objectField.getFields());
 
     return objectField;
   }
 
-  private Collection<FieldConstraint> getConstraintsForBeanField(BeanField beanField) {
+  private Collection<FieldConstraint> getConstraintsForBeanField(FieldMirror fieldMirror) {
     List<FieldConstraint> constraints = new ArrayList<>();
 
-    if (beanField.isRequired()) {
+    if (fieldMirror.isRequired()) {
       constraints.add(new RequiredConstraint());
     }
 
-    beanField.minItems().ifPresent(i -> {
+    fieldMirror.minItems().ifPresent(i -> {
       MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
       constraint.setValue(i);
       constraints.add(constraint);
     });
 
-    beanField.minLength().ifPresent(l ->
+    fieldMirror.minLength().ifPresent(l ->
         constraints.add(new StringLengthConstraint(StringLengthConstraint.MINLENGTH, l)));
 
-    beanField.maxLength().ifPresent(l ->
+    fieldMirror.maxLength().ifPresent(l ->
         constraints.add(new StringLengthConstraint(StringLengthConstraint.MAXLENGTH, l)));
 
-    if (beanField.isIdentifying()) {
+    if (fieldMirror.isIdentifying()) {
       constraints.add(new IdentityConstraint());
     }
 

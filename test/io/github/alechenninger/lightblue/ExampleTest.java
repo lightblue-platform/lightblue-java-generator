@@ -32,7 +32,7 @@ public class ExampleTest {
 
   @Test
   public void demonstrateJavaToSchema() throws IOException {
-    SchemaGenerator generator = new SchemaGenerator(new JavaBeansBeanReader());
+    SchemaGenerator generator = new SchemaGenerator(new JavaBeansReflector());
 
     EntitySchema schema = generator.getSchema(User.class);
 
@@ -152,10 +152,14 @@ public class ExampleTest {
         + "    },\n"
         + "    \"name\": \"user\",\n"
         + "    \"status\": {\"value\":\"active\"},\n"
-        + "    \"version\": null\n"
+        + "    \"version\": {\n"
+        + "        \"value\":\"1.0.0\",\n"
+        + "        \"changelog\":\"Do some stuff\"\n"
+        + "    }\n"
         + "}"), parser.convert(schema));
   }
 
+  @Version(value = "1.0.0", changelog = "Do some stuff")
   static class User {
     private String _id;
     private String firstName;

@@ -1,7 +1,5 @@
 package io.github.alechenninger.lightblue;
 
-import com.redhat.lightblue.metadata.Version;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -10,32 +8,40 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class JavaBeansBeanReader implements BeanReader {
+public class JavaBeansBeanMirror implements BeanMirror {
+  private final Class<?> bean;
+  private final Reflector reflector;
+
+  public JavaBeansBeanMirror(Class<?> bean, Reflector reflector) {
+    this.bean = bean;
+    this.reflector = reflector;
+  }
+
   @Override
-  public String getEntityName(Class<?> bean) {
+  public String getEntityName() {
     return Introspector.decapitalize(bean.getSimpleName());
   }
 
   @Override
-  public Version getEntityVersion(Class<?> bean) {
-    throw new UnsupportedOperationException();
+  public VersionMirror getVersion() {
+    return new AnnotationVersionMirror(bean);
   }
 
   @Override
-  public Collection<BeanField> readBeanFields(Class<?> bean) {
+  public Collection<FieldMirror> getFields() {
     try {
       BeanInfo info = Introspector.getBeanInfo(bean, Object.class);
       PropertyDescriptor[] properties = info.getPropertyDescriptors();
 
       return Arrays.stream(properties)
-          .map(this::newBeanField)
+          .map(this::newFieldMirror)
           .collect(Collectors.toList());
     } catch (IntrospectionException e) {
-      throw new BeanReaderException(e);
+      throw new MirrorException(e);
     }
   }
 
-  private JavaBeansBeanField newBeanField(PropertyDescriptor property) {
-    return new JavaBeansBeanField(property, this);
+  private JavaBeansFieldMirror newFieldMirror(PropertyDescriptor property) {
+    return new JavaBeansFieldMirror(property, reflector);
   }
 }

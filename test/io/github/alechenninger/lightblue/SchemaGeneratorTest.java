@@ -24,7 +24,7 @@ import java.util.List;
 
 @RunWith(JUnit4.class)
 public class SchemaGeneratorTest {
-  SchemaGenerator generator = new SchemaGenerator(new JavaBeansBeanReader());
+  SchemaGenerator generator = new SchemaGenerator(new JavaBeansReflector());
 
   @Test
   public void shouldGenerateSimpleFieldTypes() {

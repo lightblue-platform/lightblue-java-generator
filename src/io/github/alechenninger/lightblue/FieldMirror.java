@@ -3,7 +3,7 @@ package io.github.alechenninger.lightblue;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface BeanField {
+public interface FieldMirror {
   String name();
 
   Class<?> javaType();
@@ -20,7 +20,7 @@ public interface BeanField {
 
   Optional<Integer> maxLength();
 
-  Collection<BeanField> childBeanFields();
+  Collection<FieldMirror> childBeanFields();
 
   Optional<Class<?>> elementJavaType();
 
