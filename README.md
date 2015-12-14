@@ -311,7 +311,7 @@ Get this:
 - [x] array fields
 - [x] constraints (see [#1](../../issues/1))
 - [ ] references (see [#3](../../issues/3))
-- [ ] versions (see [#2](../../issues/2))
+- [x] versions (see [#2](../../issues/2))
 - [ ] enums (see [#5](../../issues/5))
 - [ ] generators (see [#6](../../issues/6))
 - [ ] generate java from metadata (see [#4](../../issues/4)). This is lowest priority since java to
