@@ -14,6 +14,7 @@ import com.redhat.lightblue.metadata.types.BooleanType;
 import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
+import io.github.alechenninger.lightblue.javabeans.JavaBeansReflector;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -23,8 +24,8 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(JUnit4.class)
-public class SchemaGeneratorTest {
-  SchemaGenerator generator = new SchemaGenerator(new JavaBeansReflector());
+public class MetadataGeneratorTest {
+  MetadataGenerator generator = new MetadataGenerator(new JavaBeansReflector());
 
   @Test
   public void shouldGenerateSimpleFieldTypes() {
@@ -74,7 +75,7 @@ public class SchemaGeneratorTest {
     expectedFields.addNew(new SimpleField("cool", BooleanType.TYPE));
     expectedFields.addNew(new SimpleField("name", StringType.TYPE));
 
-    EntitySchema schema = generator.getSchema(SimpleUser.class);
+    EntitySchema schema = generator.generateSchema(SimpleUser.class);
 
     assertThat(schema.getFields(), equalToFields(expectedFields));
   }
@@ -99,7 +100,7 @@ public class SchemaGeneratorTest {
     expectedObjectField.getFields().addNew(new SimpleField("foo", StringType.TYPE));
     expectedFields.addNew(expectedObjectField);
 
-    EntitySchema schema = generator.getSchema(HasInnerObject.class);
+    EntitySchema schema = generator.generateSchema(HasInnerObject.class);
 
     assertThat(schema.getFields(), equalToFields(expectedFields));
   }
@@ -117,7 +118,7 @@ public class SchemaGeneratorTest {
     Fields expectedFields = expectedSchema.getFields();
     expectedFields.addNew(expectedArrayField);
 
-    EntitySchema schema = generator.getSchema(HasArray.class);
+    EntitySchema schema = generator.generateSchema(HasArray.class);
 
     assertThat(schema.getFields(), equalToFields(expectedFields));
   }
@@ -143,7 +144,7 @@ public class SchemaGeneratorTest {
     Fields expectedFields = expectedSchema.getFields();
     expectedFields.addNew(expectedArrayField);
 
-    EntitySchema schema = generator.getSchema(HasObjectArray.class);
+    EntitySchema schema = generator.generateSchema(HasObjectArray.class);
 
     assertThat(schema.getFields(), equalToFields(expectedFields));
   }

@@ -20,9 +20,11 @@ public interface FieldMirror {
 
   Optional<Integer> maxLength();
 
-  Collection<FieldMirror> childBeanFields();
+  Collection<FieldMirror> objectFields();
 
   Optional<Class<?>> elementJavaType();
+
+  Optional<EnumMirror> enumMirror();
 
   /*
   Optional<> valueGeneratorType();

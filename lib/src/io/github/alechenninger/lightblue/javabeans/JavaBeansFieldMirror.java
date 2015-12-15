@@ -1,9 +1,25 @@
-package io.github.alechenninger.lightblue;
+package io.github.alechenninger.lightblue.javabeans;
+
+import io.github.alechenninger.lightblue.Description;
+import io.github.alechenninger.lightblue.EnumMirror;
+import io.github.alechenninger.lightblue.FieldMirror;
+import io.github.alechenninger.lightblue.Identity;
+import io.github.alechenninger.lightblue.MaxLength;
+import io.github.alechenninger.lightblue.MinItems;
+import io.github.alechenninger.lightblue.MinLength;
+import io.github.alechenninger.lightblue.Reflector;
+import io.github.alechenninger.lightblue.Required;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class JavaBeansFieldMirror implements FieldMirror {
   private final PropertyDescriptor property;
@@ -64,7 +80,7 @@ public class JavaBeansFieldMirror implements FieldMirror {
   }
 
   @Override
-  public Collection<FieldMirror> childBeanFields() {
+  public Collection<FieldMirror> objectFields() {
     return reflector.reflect(property.getPropertyType()).getFields();
   }
 
@@ -79,5 +95,10 @@ public class JavaBeansFieldMirror implements FieldMirror {
     ParameterizedType genericPropertyType = (ParameterizedType) propertyType;
 
     return Optional.of((Class<?>) genericPropertyType.getActualTypeArguments()[0]);
+  }
+
+  @Override
+  public Optional<EnumMirror> enumMirror() {
+    return null;
   }
 }

@@ -1,4 +1,7 @@
-package io.github.alechenninger.lightblue;
+package io.github.alechenninger.lightblue.javabeans;
+
+import io.github.alechenninger.lightblue.BeanMirror;
+import io.github.alechenninger.lightblue.Reflector;
 
 public class JavaBeansReflector implements Reflector {
   @Override

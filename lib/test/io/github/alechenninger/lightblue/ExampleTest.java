@@ -8,6 +8,7 @@ import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import io.github.alechenninger.lightblue.javabeans.JavaBeansReflector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +33,10 @@ public class ExampleTest {
 
   @Test
   public void demonstrateJavaToSchema() throws IOException {
-    SchemaGenerator generator = new SchemaGenerator(new JavaBeansReflector());
+    MetadataGenerator generator = new MetadataGenerator(new JavaBeansReflector());
 
-    EntitySchema schema = generator.getSchema(User.class);
+    generator.generateInfo(User.class);
+    EntitySchema schema = generator.generateSchema(User.class);
 
     assertEquals(mapper.readTree("{\n"
         + "    \"access\": {\n"
@@ -168,6 +170,7 @@ public class ExampleTest {
     private List<Address> addresses;
     private PhoneNumber phoneNumber;
     private PhoneNumber faxNumber;
+    private Status status;
 
     public String get_id() {
       return _id;
@@ -227,6 +230,18 @@ public class ExampleTest {
 
     public void setFaxNumber(PhoneNumber faxNumber) {
       this.faxNumber = faxNumber;
+    }
+
+    public Status getStatus() {
+      return status;
+    }
+
+    public void setStatus(Status status) {
+      this.status = status;
+    }
+
+    enum Status {
+      @Description("User is enabled") ENABLED, DISABLED
     }
 
     static class Address {

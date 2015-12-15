@@ -1,4 +1,12 @@
-package io.github.alechenninger.lightblue;
+package io.github.alechenninger.lightblue.javabeans;
+
+import io.github.alechenninger.lightblue.AnnotationVersionMirror;
+import io.github.alechenninger.lightblue.BeanMirror;
+import io.github.alechenninger.lightblue.FieldMirror;
+import io.github.alechenninger.lightblue.MirrorException;
+import io.github.alechenninger.lightblue.Reflector;
+import io.github.alechenninger.lightblue.Transient;
+import io.github.alechenninger.lightblue.VersionMirror;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
