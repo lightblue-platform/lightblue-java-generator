@@ -14,3 +14,7 @@ hs_err_pid*
 *.iml
 .idea/
 .gradle/
+**/build/
+
+# sensitive info
+gradle.properties
