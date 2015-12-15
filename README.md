@@ -1,9 +1,10 @@
 # lightblue-java-generator
-Experimenting with generating lightblue metadata from java classes and vice versa.
+Generate [lightblue](https://lightblue.io) metadata from java classes.
 
 Given this:
 
 ```java
+@Version(value = "1.0.0", changelog = "Do some stuff")
 static class User {
   private String _id;
   private String firstName;
@@ -12,6 +13,7 @@ static class User {
   private List<Address> addresses;
   private PhoneNumber phoneNumber;
   private PhoneNumber faxNumber;
+  private Status status;
 
   public String get_id() {
     return _id;
@@ -71,6 +73,19 @@ static class User {
 
   public void setFaxNumber(PhoneNumber faxNumber) {
     this.faxNumber = faxNumber;
+  }
+
+  public Status getStatus() {
+    return status;
+  }
+
+  @Required
+  public void setStatus(Status status) {
+    this.status = status;
+  }
+
+  enum Status {
+    enabled, @Description("Use instead of deleting users") disabled
   }
 
   static class Address {
@@ -185,122 +200,158 @@ Get this:
 
 ```json
 {
-    "access": {
-        "delete": [],
-        "find": [],
-        "insert": [],
-        "update": []
+    "entityInfo": {
+        "enums": [
+            {
+                "annotatedValues": [
+                    {
+                        "description": "Use instead of deleting users",
+                        "name": "disabled"
+                    },
+                    {
+                        "description": null,
+                        "name": "enabled"
+                    }
+                ],
+                "name": "status",
+                "values": [
+                    "disabled",
+                    "enabled"
+                ]
+            }
+        ],
+        "name": "user"
     },
-    "fields": {
-        "_id": {
-            "constraints": {
-                "identity": true
-            },
-            "type": "string"
+    "schema": {
+        "access": {
+            "delete": [],
+            "find": [],
+            "insert": [],
+            "update": []
         },
-        "addresses": {
-            "constraints": {
-                "minimum": 1
+        "fields": {
+            "_id": {
+                "constraints": {
+                    "identity": true
+                },
+                "type": "string"
             },
-            "items": {
+            "addresses": {
+                "constraints": {
+                    "minimum": 1
+                },
+                "items": {
+                    "fields": {
+                        "address1": {
+                            "constraints": {
+                                "required": true
+                            },
+                            "type": "string"
+                        },
+                        "address2": {
+                            "type": "string"
+                        },
+                        "city": {
+                            "constraints": {
+                                "required": true
+                            },
+                            "type": "string"
+                        },
+                        "postalCode": {
+                            "constraints": {
+                                "required": true
+                            },
+                            "type": "integer"
+                        },
+                        "state": {
+                            "constraints": {
+                                "required": true
+                            },
+                            "fields": {
+                                "code": {
+                                    "constraints": {
+                                        "required": true
+                                    },
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "usage": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "type": "array"
+            },
+            "birthdate": {
+                "type": "date"
+            },
+            "faxNumber": {
                 "fields": {
-                    "address1": {
-                        "constraints": {
-                            "required": true
-                        },
-                        "type": "string"
-                    },
-                    "address2": {
-                        "type": "string"
-                    },
-                    "city": {
-                        "constraints": {
-                            "required": true
-                        },
-                        "type": "string"
-                    },
-                    "postalCode": {
+                    "areaCode": {
                         "constraints": {
                             "required": true
                         },
                         "type": "integer"
                     },
-                    "state": {
+                    "digits": {
                         "constraints": {
                             "required": true
                         },
-                        "fields": {
-                            "code": {
-                                "constraints": {
-                                    "required": true
-                                },
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            }
-                        },
-                        "type": "object"
-                    },
-                    "usage": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "type": "object"
             },
-            "type": "array"
-        },
-        "birthdate": {
-            "type": "date"
-        },
-        "faxNumber": {
-            "fields": {
-                "areaCode": {
-                    "constraints": {
-                        "required": true
-                    },
-                    "type": "integer"
+            "firstName": {
+                "constraints": {
+                    "minLength": 2,
+                    "required": true
                 },
-                "digits": {
-                    "constraints": {
-                        "required": true
-                    },
-                    "type": "integer"
-                }
+                "type": "string"
             },
-            "type": "object"
-        },
-        "firstName": {
-            "constraints": {
-                "minLength": 2,
-                "required": true
+            "lastName": {
+                "type": "string"
             },
-            "type": "string"
-        },
-        "lastName": {
-            "type": "string"
-        },
-        "phoneNumber": {
-            "fields": {
-                "areaCode": {
-                    "constraints": {
-                        "required": true
+            "phoneNumber": {
+                "fields": {
+                    "areaCode": {
+                        "constraints": {
+                            "required": true
+                        },
+                        "type": "integer"
                     },
-                    "type": "integer"
+                    "digits": {
+                        "constraints": {
+                            "required": true
+                        },
+                        "type": "integer"
+                    }
                 },
-                "digits": {
-                    "constraints": {
-                        "required": true
-                    },
-                    "type": "integer"
-                }
+                "type": "object"
             },
-            "type": "object"
+            "status": {
+                "constraints": {
+                    "enum": "status",
+                    "required": true
+                },
+                "type": "string"
+            }
+        },
+        "name": "user",
+        "status": {
+            "value": "active"
+        },
+        "version": {
+            "changelog": "Do some stuff",
+            "value": "1.0.0"
         }
-    },
-    "name": "user",
-    "status": null,
-    "version": null
+    }
 }
 ```
 
@@ -312,7 +363,7 @@ Get this:
 - [x] constraints (see [#1](../../issues/1))
 - [ ] references (see [#3](../../issues/3))
 - [x] versions (see [#2](../../issues/2))
-- [ ] enums (see [#5](../../issues/5))
+- [x] enums (see [#5](../../issues/5))
 - [ ] generators (see [#6](../../issues/6))
 - [ ] generate java from metadata (see [#4](../../issues/4)). This is lowest priority since java to
       metadata is lossy therefore going the other direction will require a small amount of "magic"

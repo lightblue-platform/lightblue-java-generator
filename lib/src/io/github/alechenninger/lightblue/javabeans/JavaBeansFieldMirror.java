@@ -99,6 +99,10 @@ public class JavaBeansFieldMirror implements FieldMirror {
 
   @Override
   public Optional<EnumMirror> enumMirror() {
-    return null;
+    if (!javaType().isEnum()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(new JavaBeansEnumMirror(javaType()));
   }
 }
