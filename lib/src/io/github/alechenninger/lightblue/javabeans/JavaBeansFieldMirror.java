@@ -4,6 +4,7 @@ import io.github.alechenninger.lightblue.Description;
 import io.github.alechenninger.lightblue.EnumMirror;
 import io.github.alechenninger.lightblue.FieldMirror;
 import io.github.alechenninger.lightblue.Identity;
+import io.github.alechenninger.lightblue.MaxItems;
 import io.github.alechenninger.lightblue.MaxLength;
 import io.github.alechenninger.lightblue.MinItems;
 import io.github.alechenninger.lightblue.MinLength;
@@ -63,6 +64,13 @@ public class JavaBeansFieldMirror implements FieldMirror {
     MinItems minItems = property.getWriteMethod().getAnnotation(MinItems.class);
     return Optional.ofNullable(minItems)
         .map(MinItems::value);
+  }
+
+  @Override
+  public Optional<Integer> maxItems() {
+    MaxItems maxItems = property.getWriteMethod().getAnnotation(MaxItems.class);
+    return Optional.ofNullable(maxItems)
+        .map(MaxItems::value);
   }
 
   @Override

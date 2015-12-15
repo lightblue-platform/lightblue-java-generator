@@ -16,6 +16,8 @@ public interface FieldMirror {
 
   Optional<Integer> minItems();
 
+  Optional<Integer> maxItems();
+
   Optional<Integer> minLength();
 
   Optional<Integer> maxLength();

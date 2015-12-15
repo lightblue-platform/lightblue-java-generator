@@ -77,7 +77,7 @@ public class ExampleTest {
         + "            },\n"
         + "            \"addresses\": {\n"
         + "                \"constraints\": {\n"
-        + "                    \"minimum\": 1\n"
+        + "                    \"minItems\": 1\n"
         + "                },\n"
         + "                \"items\": {\n"
         + "                    \"fields\": {\n"

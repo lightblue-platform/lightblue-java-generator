@@ -238,7 +238,7 @@ Get this:
             },
             "addresses": {
                 "constraints": {
-                    "minimum": 1
+                    "minItems": 1
                 },
                 "items": {
                     "fields": {

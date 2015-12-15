@@ -17,6 +17,7 @@ import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
@@ -152,7 +153,13 @@ public class MetadataGenerator {
     }
 
     fieldMirror.minItems().ifPresent(i -> {
-      MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
+      ArraySizeConstraint constraint = new ArraySizeConstraint(ArraySizeConstraint.MIN);
+      constraint.setValue(i);
+      constraints.add(constraint);
+    });
+
+    fieldMirror.maxItems().ifPresent(i -> {
+      ArraySizeConstraint constraint = new ArraySizeConstraint(ArraySizeConstraint.MAX);
       constraint.setValue(i);
       constraints.add(constraint);
     });
