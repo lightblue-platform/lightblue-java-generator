@@ -1,6 +1,7 @@
 package io.github.alechenninger.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -16,9 +17,13 @@ import java.nio.file.Paths;
 
 public class Main {
   private static Extensions extensions = new Extensions();
+  static {
+    extensions.addDefaultExtensions();
+  }
   private static JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
   private static JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
   private static MetadataGenerator generater = new MetadataGenerator(new JavaBeansReflector());
+  private static ObjectMapper mapper = new ObjectMapper();
 
   public static void main(String[] args) throws IOException, ClassNotFoundException {
     if (args.length < 2) {
@@ -35,7 +40,8 @@ public class Main {
       Class classForName = classLoader.loadClass(className);
       EntityMetadata metadata = generater.generateMetadata(classForName);
       JsonNode metadataJson = parser.convert(metadata);
-      Files.write(Paths.get(metadata.getName(), ".json"), metadataJson.toString().getBytes("UTF-8"));
+      String prettyMetadataJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(metadataJson);
+      Files.write(Paths.get(metadata.getName() + ".json"), prettyMetadataJson.getBytes("UTF-8"));
     }
   }
 }
