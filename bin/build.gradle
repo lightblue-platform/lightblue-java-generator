@@ -1,0 +1,33 @@
+group 'io.github.alechenninger.lightblue'
+version '0.1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+mainClassName = 'io.github.alechenninger.lightblue.Main'
+
+repositories {
+  mavenCentral()
+}
+
+sourceSets {
+  main {
+    java {
+      srcDirs = ['src/']
+    }
+  }
+
+  test {
+    java {
+      srcDirs = ['test/']
+    }
+  }
+}
+
+dependencies {
+  compile project(':lightblue-java-generator')
+
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+  testCompile group: 'org.hamcrest', name: 'java-hamcrest', version: '2.0.0.0'
+}

@@ -3,4 +3,6 @@ include 'api'
 findProject(':api')?.name = 'lightblue-java-generator-api'
 include 'lib'
 findProject(':lib')?.name = 'lightblue-java-generator'
+include 'bin'
+findProject(':bin')?.name = 'lightblue-java-generator-bin'
 
