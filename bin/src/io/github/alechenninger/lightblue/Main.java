@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Main {
@@ -41,7 +42,9 @@ public class Main {
       EntityMetadata metadata = generater.generateMetadata(classForName);
       JsonNode metadataJson = parser.convert(metadata);
       String prettyMetadataJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(metadataJson);
-      Files.write(Paths.get(metadata.getName() + ".json"), prettyMetadataJson.getBytes("UTF-8"));
+      Path metadataJsonPath = Paths.get(metadata.getName() + ".json");
+      Files.write(metadataJsonPath, prettyMetadataJson.getBytes("UTF-8"));
+      System.out.println("Wrote " + metadataJsonPath);
     }
   }
 }
