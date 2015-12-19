@@ -5,14 +5,16 @@ import java.util.Optional;
 
 public class SimpleEnumValueMirror implements EnumValueMirror {
   private final Field field;
+  private final Class enumClass;
 
-  public SimpleEnumValueMirror(Field field) {
+  public SimpleEnumValueMirror(Field field, Class enumClass) {
     this.field = field;
+    this.enumClass = enumClass;
   }
 
   @Override
   public String name() {
-    return field.getName();
+    return Enum.valueOf(enumClass, field.getName()).toString();
   }
 
   @Override

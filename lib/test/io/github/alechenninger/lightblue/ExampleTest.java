@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -45,17 +44,17 @@ public class ExampleTest {
         + "                \"annotatedValues\": [\n"
         + "                    {\n"
         + "                        \"description\": \"Use instead of deleting users\",\n"
-        + "                        \"name\": \"DISABLED\"\n"
+        + "                        \"name\": \"disabled\"\n"
         + "                    },\n"
         + "                    {\n"
         + "                        \"description\": null,\n"
-        + "                        \"name\": \"ENABLED\"\n"
+        + "                        \"name\": \"enabled\"\n"
         + "                    }\n"
         + "                ],\n"
         + "                \"name\": \"status\",\n"
         + "                \"values\": [\n"
-        + "                    \"DISABLED\",\n"
-        + "                    \"ENABLED\"\n"
+        + "                    \"disabled\",\n"
+        + "                    \"enabled\"\n"
         + "                ]\n"
         + "            }\n"
         + "        ],\n"
@@ -275,7 +274,19 @@ public class ExampleTest {
     }
 
     enum Status {
-      ENABLED, @Description("Use instead of deleting users") DISABLED
+      ENABLED("enabled"),
+      @Description("Use instead of deleting users")
+      DISABLED("disabled");
+
+      private final String toString;
+
+      Status(String toString) {
+        this.toString = toString;
+      }
+
+      public String toString() {
+        return toString;
+      }
     }
 
     static class Address {

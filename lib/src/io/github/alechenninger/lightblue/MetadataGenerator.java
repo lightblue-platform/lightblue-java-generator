@@ -20,7 +20,6 @@ import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
-import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 import com.redhat.lightblue.metadata.types.ArrayType;
@@ -42,7 +41,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public class MetadataGenerator {

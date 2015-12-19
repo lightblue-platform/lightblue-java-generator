@@ -31,7 +31,7 @@ public class JavaBeansEnumMirror implements EnumMirror {
     Set<EnumValueMirror> values = new HashSet<>(fields.length);
 
     for (Field field : fields) {
-      values.add(new SimpleEnumValueMirror(field));
+      values.add(new SimpleEnumValueMirror(field, enumClass));
     }
 
     return values;
