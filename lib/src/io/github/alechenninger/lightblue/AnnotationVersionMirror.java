@@ -12,6 +12,10 @@ public class AnnotationVersionMirror implements VersionMirror {
     this.version = Optional.ofNullable(bean.getAnnotation(Version.class));
   }
 
+  public boolean isVersionAnnotationPresent() {
+    return version.isPresent();
+  }
+
   @Override
   public String getVersion() {
     return version.map(Version::value)

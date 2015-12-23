@@ -1,9 +1,10 @@
 package io.github.alechenninger.lightblue;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface BeanMirror {
   String getEntityName();
-  VersionMirror getVersion();
+  Optional<VersionMirror> getVersion();
   Collection<FieldMirror> getFields();
 }

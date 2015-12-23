@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class MetadataGenerator {
@@ -87,14 +88,15 @@ public class MetadataGenerator {
     EntitySchema schema = new EntitySchema(beanMirror.getEntityName());
     schema.setStatus(MetadataStatus.ACTIVE);
 
-    VersionMirror versionMirror  = beanMirror.getVersion();
-    Collection<String> extendsVersionsCollection = versionMirror.getExtendsVersions();
-    String[] extendsVersionsArr = extendsVersionsCollection.isEmpty()
-        ? null
-        : extendsVersionsCollection.toArray(new String[extendsVersionsCollection.size()]);
+    beanMirror.getVersion().ifPresent(versionMirror -> {
+      Collection<String> extendsVersionsCollection = versionMirror.getExtendsVersions();
+      String[] extendsVersionsArr = extendsVersionsCollection.isEmpty()
+          ? null
+          : extendsVersionsCollection.toArray(new String[extendsVersionsCollection.size()]);
 
-    schema.setVersion(
-        new Version(versionMirror.getVersion(), extendsVersionsArr, versionMirror.getChangelog()));
+      schema.setVersion(
+          new Version(versionMirror.getVersion(), extendsVersionsArr, versionMirror.getChangelog()));
+    });
 
     addLightblueFieldsForClass(beanMirror, schema.getFields());
 

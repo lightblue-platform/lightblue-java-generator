@@ -2,6 +2,7 @@ package io.github.alechenninger.lightblue.javabeans;
 
 import io.github.alechenninger.lightblue.AnnotationVersionMirror;
 import io.github.alechenninger.lightblue.BeanMirror;
+import io.github.alechenninger.lightblue.EntityName;
 import io.github.alechenninger.lightblue.FieldMirror;
 import io.github.alechenninger.lightblue.MirrorException;
 import io.github.alechenninger.lightblue.Reflector;
@@ -14,6 +15,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JavaBeansBeanMirror implements BeanMirror {
@@ -27,12 +29,20 @@ public class JavaBeansBeanMirror implements BeanMirror {
 
   @Override
   public String getEntityName() {
-    return Introspector.decapitalize(bean.getSimpleName());
+    return Optional.ofNullable(bean.getAnnotation(EntityName.class))
+        .map(EntityName::value)
+        .orElse(Introspector.decapitalize(bean.getSimpleName()));
   }
 
   @Override
-  public VersionMirror getVersion() {
-    return new AnnotationVersionMirror(bean);
+  public Optional<VersionMirror> getVersion() {
+    AnnotationVersionMirror versionMirror = new AnnotationVersionMirror(bean);
+
+    if (versionMirror.isVersionAnnotationPresent()) {
+      return Optional.of(versionMirror);
+    }
+
+    return Optional.empty();
   }
 
   @Override

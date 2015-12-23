@@ -2,8 +2,10 @@ package io.github.alechenninger.lightblue;
 
 import static io.github.alechenninger.lightblue.matchers.GeneratorMatchers.equalToFields;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
@@ -87,9 +89,16 @@ public class MetadataGeneratorTest {
         return new InnerObject();
       }
 
+      public void setInnerObject(InnerObject innerObject) {
+
+      }
+
       class InnerObject {
         public String getFoo() {
-          return "";
+          return "foo";
+        }
+
+        public void setFoo(String foo) {
         }
       }
     }
@@ -109,7 +118,11 @@ public class MetadataGeneratorTest {
   public void shouldGenerateArrayFieldTypesForSimpleArrayElements() {
     class HasArray {
       public List<String> getFoobars() {
-        return Arrays.asList("foobar1", "foobar2");
+        return Arrays.asList("foo", "bars");
+      }
+
+      public void setFoobars(List<String> foobars) {
+
       }
     }
 
@@ -130,9 +143,17 @@ public class MetadataGeneratorTest {
         return Arrays.asList(new SomeObject(), new SomeObject());
       }
 
+      public void setSomeObjects(List<SomeObject> someObjects) {
+
+      }
+
       class SomeObject {
         public Integer getSomeNumber() {
           return 42;
+        }
+
+        public void setSomeNumber(Integer someNumber) {
+
         }
       }
     }
@@ -147,5 +168,18 @@ public class MetadataGeneratorTest {
     EntitySchema schema = generator.generateSchema(HasObjectArray.class);
 
     assertThat(schema.getFields(), equalToFields(expectedFields));
+  }
+
+  @Test
+  public void respectsEntityNameAnnotation() {
+    @EntityName("overriddenEntityName")
+    class NotTheEntityName {
+
+    }
+
+    EntityMetadata metadata = generator.generateMetadata(NotTheEntityName.class);
+
+    assertEquals("overriddenEntityName", metadata.getName());
+    assertEquals("overriddenEntityName", metadata.getEntitySchema().getName());
   }
 }
