@@ -36,6 +36,7 @@ import com.redhat.lightblue.metadata.types.StringType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -192,7 +193,7 @@ public class MetadataGenerator {
       return BooleanType.TYPE;
     }
 
-    if (type.equals(Date.class) || type.equals(Instant.class)) {
+    if (type.equals(Date.class) || Temporal.class.isAssignableFrom(type)) {
       return DateType.TYPE;
     }
 
