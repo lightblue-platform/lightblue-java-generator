@@ -49,11 +49,11 @@ bintray {
       name = project.version
       gpg {
         sign = true
-        passphrase = project.property('gpgPassphrase')
+        passphrase = project.hasProperty('gpgPasspharse') ? project.property('gpgPassphrase') : null
       }
       mavenCentralSync {
-        user = project.property('sonatypeUser')
-        password = project.property('sonatypePassword')
+        user = project.hasProperty('sonatypeUser') ? project.property('sonatypeUser') : null
+        password = project.hasProperty('sonatypePasssword') ? project.property('sonatypePassword') : null
       }
     }
   }
