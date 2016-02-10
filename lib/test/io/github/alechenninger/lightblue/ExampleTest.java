@@ -274,19 +274,9 @@ public class ExampleTest {
     }
 
     enum Status {
-      ENABLED("enabled"),
+      enabled,
       @Description("Use instead of deleting users")
-      DISABLED("disabled");
-
-      private final String toString;
-
-      Status(String toString) {
-        this.toString = toString;
-      }
-
-      public String toString() {
-        return toString;
-      }
+      disabled;
     }
 
     static class Address {
