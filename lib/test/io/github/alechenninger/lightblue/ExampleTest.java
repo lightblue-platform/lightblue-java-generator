@@ -72,54 +72,80 @@ public class ExampleTest {
         + "                \"constraints\": {\n"
         + "                    \"identity\": true\n"
         + "                },\n"
-        + "                \"type\": \"string\"\n"
+        + "                \"description\": null,\n"
+        + "                \"type\": \"string\",\n"
+        + "                \"valueGenerator\": {\n"
+        + "                    \"configuration\": {\n"
+        + "                        \"name\": \"userIdSequence\"\n"
+        + "                    },\n"
+        + "                    \"type\": \"IntSequence\"\n"
+        + "                }\n"
         + "            },\n"
         + "            \"addresses\": {\n"
         + "                \"constraints\": {\n"
         + "                    \"minItems\": 1\n"
         + "                },\n"
+        + "                \"description\": null,\n"
         + "                \"items\": {\n"
         + "                    \"fields\": {\n"
         + "                        \"address1\": {\n"
         + "                            \"constraints\": {\n"
         + "                                \"required\": true\n"
         + "                            },\n"
+        + "                            \"description\": null,\n"
         + "                            \"type\": \"string\"\n"
         + "                        },\n"
         + "                        \"address2\": {\n"
+        + "                            \"description\": null,\n"
         + "                            \"type\": \"string\"\n"
         + "                        },\n"
         + "                        \"city\": {\n"
         + "                            \"constraints\": {\n"
         + "                                \"required\": true\n"
         + "                            },\n"
+        + "                            \"description\": null,\n"
         + "                            \"type\": \"string\"\n"
         + "                        },\n"
         + "                        \"postalCode\": {\n"
         + "                            \"constraints\": {\n"
         + "                                \"required\": true\n"
         + "                            },\n"
+        + "                            \"description\": null,\n"
         + "                            \"type\": \"integer\"\n"
         + "                        },\n"
         + "                        \"state\": {\n"
         + "                            \"constraints\": {\n"
         + "                                \"required\": true\n"
         + "                            },\n"
+        + "                            \"description\": null,\n"
         + "                            \"fields\": {\n"
         + "                                \"code\": {\n"
         + "                                    \"constraints\": {\n"
         + "                                        \"required\": true\n"
         + "                                    },\n"
+        + "                                    \"description\": null,\n"
         + "                                    \"type\": \"string\"\n"
         + "                                },\n"
         + "                                \"name\": {\n"
+        + "                                    \"description\": null,\n"
         + "                                    \"type\": \"string\"\n"
         + "                                }\n"
         + "                            },\n"
         + "                            \"type\": \"object\"\n"
         + "                        },\n"
         + "                        \"usage\": {\n"
+        + "                            \"description\": null,\n"
         + "                            \"type\": \"string\"\n"
+        + "                        },\n"
+        + "                        \"uuid\": {\n"
+        + "                            \"constraints\": {\n"
+        + "                                \"element-identity\": true\n"
+        + "                            },\n"
+        + "                            \"description\": null,\n"
+        + "                            \"type\": \"string\",\n"
+        + "                            \"valueGenerator\": {\n"
+        + "                                \"type\": \"UUID\"\n"
+        + "                            }\n"
         + "                        }\n"
         + "                    },\n"
         + "                    \"type\": \"object\"\n"
@@ -127,20 +153,24 @@ public class ExampleTest {
         + "                \"type\": \"array\"\n"
         + "            },\n"
         + "            \"birthdate\": {\n"
+        + "                \"description\": null,\n"
         + "                \"type\": \"date\"\n"
         + "            },\n"
         + "            \"faxNumber\": {\n"
+        + "                \"description\": null,\n"
         + "                \"fields\": {\n"
         + "                    \"areaCode\": {\n"
         + "                        \"constraints\": {\n"
         + "                            \"required\": true\n"
         + "                        },\n"
+        + "                        \"description\": null,\n"
         + "                        \"type\": \"integer\"\n"
         + "                    },\n"
         + "                    \"digits\": {\n"
         + "                        \"constraints\": {\n"
         + "                            \"required\": true\n"
         + "                        },\n"
+        + "                        \"description\": null,\n"
         + "                        \"type\": \"integer\"\n"
         + "                    }\n"
         + "                },\n"
@@ -151,23 +181,39 @@ public class ExampleTest {
         + "                    \"minLength\": 2,\n"
         + "                    \"required\": true\n"
         + "                },\n"
+        + "                \"description\": null,\n"
         + "                \"type\": \"string\"\n"
         + "            },\n"
         + "            \"lastName\": {\n"
+        + "                \"description\": null,\n"
         + "                \"type\": \"string\"\n"
         + "            },\n"
+        + "            \"lastUpdateDate\": {\n"
+        + "                \"constraints\": {\n"
+        + "                    \"required\": true\n"
+        + "                },\n"
+        + "                \"description\": null,\n"
+        + "                \"type\": \"date\",\n"
+        + "                \"valueGenerator\": {\n"
+        + "                    \"overwrite\": true,\n"
+        + "                    \"type\": \"CurrentTime\"\n"
+        + "                }\n"
+        + "            },\n"
         + "            \"phoneNumber\": {\n"
+        + "                \"description\": null,\n"
         + "                \"fields\": {\n"
         + "                    \"areaCode\": {\n"
         + "                        \"constraints\": {\n"
         + "                            \"required\": true\n"
         + "                        },\n"
+        + "                        \"description\": null,\n"
         + "                        \"type\": \"integer\"\n"
         + "                    },\n"
         + "                    \"digits\": {\n"
         + "                        \"constraints\": {\n"
         + "                            \"required\": true\n"
         + "                        },\n"
+        + "                        \"description\": null,\n"
         + "                        \"type\": \"integer\"\n"
         + "                    }\n"
         + "                },\n"
@@ -178,6 +224,7 @@ public class ExampleTest {
         + "                    \"enum\": \"status\",\n"
         + "                    \"required\": true\n"
         + "                },\n"
+        + "                \"description\": null,\n"
         + "                \"type\": \"string\"\n"
         + "            }\n"
         + "        },\n"
@@ -198,6 +245,7 @@ public class ExampleTest {
     private String _id;
     private String firstName;
     private String lastName;
+    private Date lastUpdateDate;
     private Date birthdate;
     private List<Address> addresses;
     private PhoneNumber phoneNumber;
@@ -209,6 +257,7 @@ public class ExampleTest {
     }
 
     @Identity
+    @IntSequence(name = "userIdSequence")
     public void set_id(String _id) {
       this._id = _id;
     }
@@ -229,6 +278,16 @@ public class ExampleTest {
 
     public void setLastName(String lastName) {
       this.lastName = lastName;
+    }
+
+    public Date getLastUpdateDate() {
+      return lastUpdateDate;
+    }
+
+    @Required
+    @CurrentTime(overwrite = true)
+    public void setLastUpdateDate(Date lastUpdateDate) {
+      this.lastUpdateDate = lastUpdateDate;
     }
 
     public Date getBirthdate() {
@@ -286,6 +345,17 @@ public class ExampleTest {
       private int postalCode;
       private String city;
       private State state;
+      private String uuid;
+
+      public String getUuid() {
+        return uuid;
+      }
+
+      @ElementIdentity
+      @Uuid
+      public void setUuid(String uuid) {
+        this.uuid = uuid;
+      }
 
       public String getUsage() {
         return usage;

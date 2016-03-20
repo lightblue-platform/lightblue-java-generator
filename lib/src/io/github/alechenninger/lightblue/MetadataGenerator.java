@@ -16,7 +16,10 @@ import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.ValueGenerator;
+import com.redhat.lightblue.metadata.ValueGenerator.ValueGeneratorType;
 import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
 import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
@@ -35,7 +38,6 @@ import com.redhat.lightblue.metadata.types.StringType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +45,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 public class MetadataGenerator {
@@ -110,6 +113,11 @@ public class MetadataGenerator {
       field.setConstraints(getConstraintsForBeanField(fieldMirror));
       fieldMirror.description().ifPresent(d -> field.getProperties().put("description", d));
 
+      if (field instanceof SimpleField) {
+        SimpleField simpleField = (SimpleField) field;
+        getValueGeneratorForBeanField(fieldMirror).ifPresent(simpleField::setValueGenerator);
+      }
+
       fields.addNew(field);
     }
   }
@@ -175,6 +183,10 @@ public class MetadataGenerator {
       constraints.add(new IdentityConstraint());
     }
 
+    if (fieldMirror.isElementIdentifying()) {
+      constraints.add(new ArrayElementIdConstraint());
+    }
+
     if (fieldMirror.javaType().isEnum()) {
       EnumConstraint enumConstraint = new EnumConstraint();
       enumConstraint.setName(fieldMirror.enumMirror().get().name());
@@ -182,6 +194,42 @@ public class MetadataGenerator {
     }
 
     return constraints;
+  }
+
+  private Optional<ValueGenerator> getValueGeneratorForBeanField(FieldMirror fieldMirror) {
+    return fieldMirror.valueGeneratorMirror().map(generatorMirror -> {
+      if (generatorMirror instanceof IntSequenceMirror) {
+        IntSequenceMirror intSequence = (IntSequenceMirror) generatorMirror;
+
+        ValueGenerator generator = new ValueGenerator(ValueGeneratorType.IntSequence);
+        Properties properties = generator.getProperties();
+
+        generator.setOverwrite(intSequence.isOverwrite());
+        properties.setProperty("name", intSequence.name());
+        intSequence.initialValue().ifPresent(i -> {
+          properties.setProperty("initialValue", i.toString());
+        });
+
+        return generator;
+      }
+
+      if (generatorMirror instanceof UuidMirror) {
+        ValueGenerator generator = new ValueGenerator(ValueGeneratorType.UUID);
+        generator.setOverwrite(generatorMirror.isOverwrite());
+
+        return generator;
+      }
+
+      if (generatorMirror instanceof CurrentTimeMirror) {
+        ValueGenerator generator = new ValueGenerator(ValueGeneratorType.CurrentTime);
+        generator.setOverwrite(generatorMirror.isOverwrite());
+
+        return generator;
+      }
+
+      throw new UnsupportedOperationException("Unsupported generator type " +
+          generatorMirror.getClass());
+    });
   }
 
   private Type getTypeForClass(Class<?> type) {

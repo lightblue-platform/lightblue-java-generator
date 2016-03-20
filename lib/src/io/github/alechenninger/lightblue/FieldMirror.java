@@ -14,6 +14,8 @@ public interface FieldMirror {
 
   boolean isIdentifying();
 
+  boolean isElementIdentifying();
+
   Optional<Integer> minItems();
 
   Optional<Integer> maxItems();
@@ -28,7 +30,5 @@ public interface FieldMirror {
 
   Optional<EnumMirror> enumMirror();
 
-  /*
-  Optional<> valueGeneratorType();
-   */
+  Optional<ValueGeneratorMirror> valueGeneratorMirror();
 }

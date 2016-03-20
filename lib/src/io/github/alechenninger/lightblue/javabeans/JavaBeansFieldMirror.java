@@ -1,18 +1,27 @@
 package io.github.alechenninger.lightblue.javabeans;
 
+import io.github.alechenninger.lightblue.AnnotationCurrentTimeMirror;
+import io.github.alechenninger.lightblue.AnnotationIntSequenceMirror;
+import io.github.alechenninger.lightblue.AnnotationUuidMirror;
+import io.github.alechenninger.lightblue.CurrentTime;
 import io.github.alechenninger.lightblue.Description;
+import io.github.alechenninger.lightblue.ElementIdentity;
 import io.github.alechenninger.lightblue.EnumMirror;
 import io.github.alechenninger.lightblue.FieldMirror;
 import io.github.alechenninger.lightblue.Identity;
+import io.github.alechenninger.lightblue.IntSequence;
 import io.github.alechenninger.lightblue.MaxItems;
 import io.github.alechenninger.lightblue.MaxLength;
 import io.github.alechenninger.lightblue.MinItems;
 import io.github.alechenninger.lightblue.MinLength;
 import io.github.alechenninger.lightblue.Reflector;
 import io.github.alechenninger.lightblue.Required;
+import io.github.alechenninger.lightblue.Uuid;
+import io.github.alechenninger.lightblue.ValueGeneratorMirror;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,6 +66,12 @@ public class JavaBeansFieldMirror implements FieldMirror {
   public boolean isIdentifying() {
     return property.getWriteMethod().isAnnotationPresent(Identity.class) ||
         property.getReadMethod().isAnnotationPresent(Identity.class);
+  }
+
+  @Override
+  public boolean isElementIdentifying() {
+    return property.getWriteMethod().isAnnotationPresent(ElementIdentity.class) ||
+        property.getReadMethod().isAnnotationPresent(ElementIdentity.class);
   }
 
   @Override
@@ -112,5 +127,30 @@ public class JavaBeansFieldMirror implements FieldMirror {
     }
 
     return Optional.of(new JavaBeansEnumMirror(javaType()));
+  }
+
+  @Override
+  public Optional<ValueGeneratorMirror> valueGeneratorMirror() {
+    Method writeMethod = property.getWriteMethod();
+
+    Uuid uuid = writeMethod.getAnnotation(Uuid.class);
+
+    if (uuid != null) {
+      return Optional.of(new AnnotationUuidMirror(uuid));
+    }
+
+    IntSequence intSequence = writeMethod.getAnnotation(IntSequence.class);
+
+    if (intSequence != null) {
+      return Optional.of(new AnnotationIntSequenceMirror(intSequence));
+    }
+
+    CurrentTime currentTime = writeMethod.getAnnotation(CurrentTime.class);
+
+    if (currentTime != null) {
+      return Optional.of(new AnnotationCurrentTimeMirror(currentTime));
+    }
+
+    return Optional.empty();
   }
 }
