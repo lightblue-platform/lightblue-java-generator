@@ -9,6 +9,7 @@ static class User {
   private String _id;
   private String firstName;
   private String lastName;
+  private Date lastUpdateDate;
   private Date birthdate;
   private List<Address> addresses;
   private PhoneNumber phoneNumber;
@@ -20,6 +21,7 @@ static class User {
   }
 
   @Identity
+  @IntSequence(name = "userIdSequence")
   public void set_id(String _id) {
     this._id = _id;
   }
@@ -40,6 +42,16 @@ static class User {
 
   public void setLastName(String lastName) {
     this.lastName = lastName;
+  }
+
+  public Date getLastUpdateDate() {
+    return lastUpdateDate;
+  }
+
+  @Required
+  @CurrentTime(overwrite = true)
+  public void setLastUpdateDate(Date lastUpdateDate) {
+    this.lastUpdateDate = lastUpdateDate;
   }
 
   public Date getBirthdate() {
@@ -85,7 +97,9 @@ static class User {
   }
 
   enum Status {
-    enabled, @Description("Use instead of deleting users") disabled
+    enabled,
+    @Description("Use instead of deleting users")
+    disabled;
   }
 
   static class Address {
@@ -95,6 +109,17 @@ static class User {
     private int postalCode;
     private String city;
     private State state;
+    private String uuid;
+
+    public String getUuid() {
+      return uuid;
+    }
+
+    @ElementIdentity
+    @Uuid
+    public void setUuid(String uuid) {
+      this.uuid = uuid;
+    }
 
     public String getUsage() {
       return usage;
@@ -234,54 +259,80 @@ Get this:
                 "constraints": {
                     "identity": true
                 },
-                "type": "string"
+                "description": null,
+                "type": "string",
+                "valueGenerator": {
+                    "configuration": {
+                        "name": "userIdSequence"
+                    },
+                    "type": "IntSequence"
+                }
             },
             "addresses": {
                 "constraints": {
                     "minItems": 1
                 },
+                "description": null,
                 "items": {
                     "fields": {
                         "address1": {
                             "constraints": {
                                 "required": true
                             },
+                            "description": null,
                             "type": "string"
                         },
                         "address2": {
+                            "description": null,
                             "type": "string"
                         },
                         "city": {
                             "constraints": {
                                 "required": true
                             },
+                            "description": null,
                             "type": "string"
                         },
                         "postalCode": {
                             "constraints": {
                                 "required": true
                             },
+                            "description": null,
                             "type": "integer"
                         },
                         "state": {
                             "constraints": {
                                 "required": true
                             },
+                            "description": null,
                             "fields": {
                                 "code": {
                                     "constraints": {
                                         "required": true
                                     },
+                                    "description": null,
                                     "type": "string"
                                 },
                                 "name": {
+                                    "description": null,
                                     "type": "string"
                                 }
                             },
                             "type": "object"
                         },
                         "usage": {
+                            "description": null,
                             "type": "string"
+                        },
+                        "uuid": {
+                            "constraints": {
+                                "element-identity": true
+                            },
+                            "description": null,
+                            "type": "string",
+                            "valueGenerator": {
+                                "type": "UUID"
+                            }
                         }
                     },
                     "type": "object"
@@ -289,20 +340,24 @@ Get this:
                 "type": "array"
             },
             "birthdate": {
+                "description": null,
                 "type": "date"
             },
             "faxNumber": {
+                "description": null,
                 "fields": {
                     "areaCode": {
                         "constraints": {
                             "required": true
                         },
+                        "description": null,
                         "type": "integer"
                     },
                     "digits": {
                         "constraints": {
                             "required": true
                         },
+                        "description": null,
                         "type": "integer"
                     }
                 },
@@ -313,23 +368,39 @@ Get this:
                     "minLength": 2,
                     "required": true
                 },
+                "description": null,
                 "type": "string"
             },
             "lastName": {
+                "description": null,
                 "type": "string"
             },
+            "lastUpdateDate": {
+                "constraints": {
+                    "required": true
+                },
+                "description": null,
+                "type": "date",
+                "valueGenerator": {
+                    "overwrite": true,
+                    "type": "CurrentTime"
+                }
+            },
             "phoneNumber": {
+                "description": null,
                 "fields": {
                     "areaCode": {
                         "constraints": {
                             "required": true
                         },
+                        "description": null,
                         "type": "integer"
                     },
                     "digits": {
                         "constraints": {
                             "required": true
                         },
+                        "description": null,
                         "type": "integer"
                     }
                 },
@@ -340,6 +411,7 @@ Get this:
                     "enum": "status",
                     "required": true
                 },
+                "description": null,
                 "type": "string"
             }
         },
@@ -364,7 +436,8 @@ Get this:
 - [ ] references (see [#3](../../issues/3))
 - [x] versions (see [#2](../../issues/2))
 - [x] enums (see [#5](../../issues/5))
-- [ ] generators (see [#6](../../issues/6))
+- [x] generators (see [#6](../../issues/6))
+- [x] element identity
 - [ ] generate java from metadata (see [#4](../../issues/4)). This is lowest priority since java to
       metadata is lossy therefore going the other direction will require a small amount of "magic"
       to compute that missing information. For this reason I think it's better to simply use Java
