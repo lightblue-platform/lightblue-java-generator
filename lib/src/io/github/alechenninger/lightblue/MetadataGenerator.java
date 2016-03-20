@@ -8,6 +8,7 @@ import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.EnumValue;
 import com.redhat.lightblue.metadata.Enums;
 import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.MetadataStatus;
@@ -41,12 +42,18 @@ import java.math.BigInteger;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MetadataGenerator {
   private final Reflector reflector;
@@ -61,9 +68,51 @@ public class MetadataGenerator {
     return new EntityMetadata(info, schema);
   }
 
+  public void updateMetadata(EntityMetadata metadata, Class<?> entity) {
+    updateInfo(metadata.getEntityInfo(), entity);
+    updateSchema(metadata.getEntitySchema(), entity);
+  }
+
   public EntityInfo generateInfo(Class<?> entity) {
     BeanMirror beanMirror = reflector.reflect(entity);
     EntityInfo info = new EntityInfo(beanMirror.getEntityName());
+    updateInfo(info, beanMirror);
+    return info;
+  }
+
+  public void updateInfo(EntityInfo info, Class<?> entity) {
+    BeanMirror beanMirror = reflector.reflect(entity);
+
+    if (!Objects.equals(info.getName(), beanMirror.getEntityName())) {
+      throw new IllegalArgumentException("Entity name mismatch between provided entity info and "
+          + "generated entity info.");
+    }
+
+    // Clear out enums since they may conflict with updated schema.
+    info.getEnums().setEnums(Collections.emptyList());
+
+    updateInfo(info, beanMirror);
+  }
+
+  public EntitySchema generateSchema(Class<?> entity) {
+    BeanMirror beanMirror = reflector.reflect(entity);
+    EntitySchema schema = new EntitySchema(beanMirror.getEntityName());
+    updateSchema(schema, beanMirror);
+    return schema;
+  }
+
+  public void updateSchema(EntitySchema schema, Class<?> entity) {
+    BeanMirror beanMirror = reflector.reflect(entity);
+
+    if (!Objects.equals(schema.getName(), beanMirror.getEntityName())) {
+      throw new IllegalArgumentException("Entity name mismatch between provided entity schema and "
+          + "generated entity schema.");
+    }
+
+    updateSchema(schema, beanMirror);
+  }
+
+  private void updateInfo(EntityInfo info, BeanMirror beanMirror) {
     Enums enums = info.getEnums();
 
     for (FieldMirror fieldMirror : beanMirror.getFields()) {
@@ -83,13 +132,9 @@ public class MetadataGenerator {
         enums.addEnum(generatedEnum);
       }
     }
-
-    return info;
   }
 
-  public EntitySchema generateSchema(Class<?> entity) {
-    BeanMirror beanMirror = reflector.reflect(entity);
-    EntitySchema schema = new EntitySchema(beanMirror.getEntityName());
+  private void updateSchema(EntitySchema schema, BeanMirror beanMirror) {
     schema.setStatus(MetadataStatus.ACTIVE);
 
     beanMirror.getVersion().ifPresent(versionMirror -> {
@@ -102,12 +147,10 @@ public class MetadataGenerator {
           new Version(versionMirror.getVersion(), extendsVersionsArr, versionMirror.getChangelog()));
     });
 
-    addLightblueFieldsForClass(beanMirror, schema.getFields());
-
-    return schema;
+    populateFieldsFromBeanMirror(beanMirror, schema.getFields());
   }
 
-  private void addLightblueFieldsForClass(BeanMirror beanMirror, Fields fields) {
+  private void populateFieldsFromBeanMirror(BeanMirror beanMirror, Fields fields) {
     for (FieldMirror fieldMirror : beanMirror.getFields()) {
       Field field = getLightblueFieldForBeanField(fieldMirror);
       field.setConstraints(getConstraintsForBeanField(fieldMirror));
@@ -141,7 +184,7 @@ public class MetadataGenerator {
 
       if (ObjectType.TYPE.equals(arrayElementType)) {
         ObjectArrayElement arrayElement = new ObjectArrayElement();
-        addLightblueFieldsForClass(reflector.reflect(elementJavaType), arrayElement.getFields());
+        populateFieldsFromBeanMirror(reflector.reflect(elementJavaType), arrayElement.getFields());
         return new ArrayField(fieldMirror.name(), arrayElement);
       }
 
@@ -149,7 +192,7 @@ public class MetadataGenerator {
     }
 
     ObjectField objectField = new ObjectField(fieldMirror.name());
-    addLightblueFieldsForClass(reflector.reflect(javaType), objectField.getFields());
+    populateFieldsFromBeanMirror(reflector.reflect(javaType), objectField.getFields());
 
     return objectField;
   }

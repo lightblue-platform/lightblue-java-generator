@@ -7,9 +7,11 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
@@ -24,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -183,5 +186,61 @@ public class MetadataGeneratorTest {
 
     assertEquals("overriddenEntityName", metadata.getName());
     assertEquals("overriddenEntityName", metadata.getEntitySchema().getName());
+  }
+
+  @Test
+  public void updatesExistingMetadata() {
+    class User {
+      private String _id;
+      private String firstName;
+
+      public String get_id() {
+        return _id;
+      }
+
+      public void set_id(String _id) {
+        this._id = _id;
+      }
+
+      public String getFirstName() {
+        return firstName;
+      }
+
+      public void setFirstName(String firstName) {
+        this.firstName = firstName;
+      }
+    }
+
+    @EntityName("user")
+    class User2 extends User {
+      private String lastName;
+
+      public String getLastName() {
+        return lastName;
+      }
+
+      public void setLastName(String lastName) {
+        this.lastName = lastName;
+      }
+    }
+
+    EntityMetadata existing = generator.generateMetadata(User.class);
+    TestDataStore existingDataStore = new TestDataStore();
+    existing.setDataStore(existingDataStore);
+    List<Hook> existingHooks = Collections.singletonList(new Hook("testHook"));
+    existing.getHooks().setHooks(existingHooks);
+    existing.getAccess().getDelete().setRoles("deleter");
+    existing.getAccess().getFind().setRoles("finder");
+    existing.getAccess().getInsert().setRoles("inserter");
+    existing.getAccess().getUpdate().setRoles("updater");
+    existing.getFields().getField("firstName").getAccess().getUpdate().setRoles("first-name-updater");
+  }
+
+  static class TestDataStore implements DataStore {
+
+    @Override
+    public String getBackend() {
+      return "test";
+    }
   }
 }
