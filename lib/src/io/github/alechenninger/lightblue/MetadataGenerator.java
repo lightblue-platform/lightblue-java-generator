@@ -111,7 +111,7 @@ public class MetadataGenerator {
     for (FieldMirror fieldMirror : beanMirror.getFields()) {
       Field field = getLightblueFieldForBeanField(fieldMirror);
       field.setConstraints(getConstraintsForBeanField(fieldMirror));
-      fieldMirror.description().ifPresent(d -> field.getProperties().put("description", d));
+      fieldMirror.description().ifPresent(field::setDescription);
 
       if (field instanceof SimpleField) {
         SimpleField simpleField = (SimpleField) field;
