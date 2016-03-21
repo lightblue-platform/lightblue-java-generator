@@ -1,6 +1,8 @@
 package io.github.alechenninger.lightblue;
 
+import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
@@ -42,18 +44,13 @@ import java.math.BigInteger;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class MetadataGenerator {
   private final Reflector reflector;
@@ -68,19 +65,21 @@ public class MetadataGenerator {
     return new EntityMetadata(info, schema);
   }
 
-  public void updateMetadata(EntityMetadata metadata, Class<?> entity) {
-    updateInfo(metadata.getEntityInfo(), entity);
-    updateSchema(metadata.getEntitySchema(), entity);
+  public EntityMetadata updateMetadata(EntityMetadata original, Class<?> entity) {
+    BeanMirror beanMirror = reflector.reflect(entity);
+
+    EntityInfo info = generateInfo(beanMirror, Optional.of(original.getEntityInfo()));
+    EntitySchema schema = generateSchema(beanMirror, Optional.of(original.getEntitySchema()));
+
+    return new EntityMetadata(info, schema);
   }
 
   public EntityInfo generateInfo(Class<?> entity) {
     BeanMirror beanMirror = reflector.reflect(entity);
-    EntityInfo info = new EntityInfo(beanMirror.getEntityName());
-    updateInfo(info, beanMirror);
-    return info;
+    return generateInfo(beanMirror, Optional.empty());
   }
 
-  public void updateInfo(EntityInfo info, Class<?> entity) {
+  public EntityInfo updateInfo(EntityInfo info, Class<?> entity) {
     BeanMirror beanMirror = reflector.reflect(entity);
 
     if (!Objects.equals(info.getName(), beanMirror.getEntityName())) {
@@ -88,20 +87,15 @@ public class MetadataGenerator {
           + "generated entity info.");
     }
 
-    // Clear out enums since they may conflict with updated schema.
-    info.getEnums().setEnums(Collections.emptyList());
-
-    updateInfo(info, beanMirror);
+    return generateInfo(beanMirror, Optional.of(info));
   }
 
   public EntitySchema generateSchema(Class<?> entity) {
     BeanMirror beanMirror = reflector.reflect(entity);
-    EntitySchema schema = new EntitySchema(beanMirror.getEntityName());
-    updateSchema(schema, beanMirror);
-    return schema;
+    return generateSchema(beanMirror, Optional.empty());
   }
 
-  public void updateSchema(EntitySchema schema, Class<?> entity) {
+  public EntitySchema updateSchema(EntitySchema schema, Class<?> entity) {
     BeanMirror beanMirror = reflector.reflect(entity);
 
     if (!Objects.equals(schema.getName(), beanMirror.getEntityName())) {
@@ -109,10 +103,11 @@ public class MetadataGenerator {
           + "generated entity schema.");
     }
 
-    updateSchema(schema, beanMirror);
+    return generateSchema(beanMirror, Optional.of(schema));
   }
 
-  private void updateInfo(EntityInfo info, BeanMirror beanMirror) {
+  private EntityInfo generateInfo(BeanMirror beanMirror, Optional<EntityInfo> maybeOriginal) {
+    EntityInfo info = new EntityInfo(beanMirror.getEntityName());
     Enums enums = info.getEnums();
 
     for (FieldMirror fieldMirror : beanMirror.getFields()) {
@@ -132,10 +127,33 @@ public class MetadataGenerator {
         enums.addEnum(generatedEnum);
       }
     }
+
+    maybeOriginal.ifPresent(original -> {
+      info.getIndexes().setIndexes(original.getIndexes().getIndexes());
+      info.getHooks().setHooks(original.getHooks().getHooks());
+      info.setDataStore(original.getDataStore());
+      info.setDefaultVersion(original.getDefaultVersion());
+    });
+
+    return info;
   }
 
-  private void updateSchema(EntitySchema schema, BeanMirror beanMirror) {
+  private EntitySchema generateSchema(BeanMirror beanMirror, Optional<EntitySchema> maybeOriginal) {
+    EntitySchema schema = new EntitySchema(beanMirror.getEntityName());
     schema.setStatus(MetadataStatus.ACTIVE);
+
+    maybeOriginal.ifPresent(original -> {
+      EntityAccess access = schema.getAccess();
+      EntityAccess originalAccess = original.getAccess();
+
+      access.getDelete().setRoles(originalAccess.getDelete());
+      access.getInsert().setRoles(originalAccess.getInsert());
+      access.getFind().setRoles(originalAccess.getFind());
+      access.getUpdate().setRoles(originalAccess.getUpdate());
+
+      schema.setStatusChangeLog(original.getStatusChangeLog());
+      schema.setStatus(original.getStatus());
+    });
 
     beanMirror.getVersion().ifPresent(versionMirror -> {
       Collection<String> extendsVersionsCollection = versionMirror.getExtendsVersions();
@@ -147,12 +165,19 @@ public class MetadataGenerator {
           new Version(versionMirror.getVersion(), extendsVersionsArr, versionMirror.getChangelog()));
     });
 
-    populateFieldsFromBeanMirror(beanMirror, schema.getFields());
+    addFieldsFromBeanMirror(beanMirror, schema.getFields(),
+        maybeOriginal.map(EntitySchema::getFields));
+
+    return schema;
   }
 
-  private void populateFieldsFromBeanMirror(BeanMirror beanMirror, Fields fields) {
+  private void addFieldsFromBeanMirror(BeanMirror beanMirror, Fields fields,
+      Optional<Fields> maybeOriginal) {
     for (FieldMirror fieldMirror : beanMirror.getFields()) {
-      Field field = getLightblueFieldForBeanField(fieldMirror);
+      String name = fieldMirror.name();
+      Optional<Field> maybeOriginalField = maybeOriginal.map(o -> o.getField(name));
+
+      Field field = getFieldFromFieldMirror(fieldMirror, maybeOriginalField);
       field.setConstraints(getConstraintsForBeanField(fieldMirror));
       fieldMirror.description().ifPresent(field::setDescription);
 
@@ -161,17 +186,28 @@ public class MetadataGenerator {
         getValueGeneratorForBeanField(fieldMirror).ifPresent(simpleField::setValueGenerator);
       }
 
+      maybeOriginalField.ifPresent(original -> {
+        FieldAccess access = field.getAccess();
+        FieldAccess originalAccess = original.getAccess();
+
+        access.getFind().setRoles(originalAccess.getFind());
+        access.getInsert().setRoles(originalAccess.getInsert());
+        access.getUpdate().setRoles(originalAccess.getUpdate());
+      });
+
       fields.addNew(field);
     }
   }
 
-  private Field getLightblueFieldForBeanField(FieldMirror fieldMirror) {
+  private Field getFieldFromFieldMirror(FieldMirror fieldMirror, Optional<Field> maybeOriginal) {
     Class<?> javaType = fieldMirror.javaType();
+    String name = fieldMirror.name();
 
     Type type = getTypeForClass(javaType);
 
     if (isSimpleFieldType(type)) {
-      return new SimpleField(fieldMirror.name(), type);
+      // Ignore original in this case
+      return new SimpleField(name, type);
     }
 
     if (ArrayType.TYPE.equals(type)) {
@@ -179,20 +215,52 @@ public class MetadataGenerator {
       Type arrayElementType = getTypeForClass(elementJavaType);
 
       if (isSimpleFieldType(arrayElementType)) {
-        return new ArrayField(fieldMirror.name(), new SimpleArrayElement(arrayElementType));
+        return new ArrayField(name, new SimpleArrayElement(arrayElementType));
       }
 
       if (ObjectType.TYPE.equals(arrayElementType)) {
         ObjectArrayElement arrayElement = new ObjectArrayElement();
-        populateFieldsFromBeanMirror(reflector.reflect(elementJavaType), arrayElement.getFields());
-        return new ArrayField(fieldMirror.name(), arrayElement);
+
+        Optional<Fields> maybeOriginalElementFields = maybeOriginal.flatMap(original -> {
+          if (!(original instanceof ArrayField)) {
+            return Optional.empty();
+          }
+
+          ArrayField originalArrayField = (ArrayField) original;
+          ArrayElement originalElement = originalArrayField.getElement();
+
+          if (!(originalElement instanceof ObjectArrayElement)) {
+            return Optional.empty();
+          }
+
+          ObjectArrayElement originalObjectElement = (ObjectArrayElement) originalElement;
+
+          return Optional.of(originalObjectElement.getFields());
+        });
+
+        addFieldsFromBeanMirror(reflector.reflect(elementJavaType), arrayElement.getFields(),
+            maybeOriginalElementFields);
+
+        return new ArrayField(name, arrayElement);
       }
 
       throw new UnsupportedOperationException("Unsupported array element type: " + arrayElementType);
     }
 
-    ObjectField objectField = new ObjectField(fieldMirror.name());
-    populateFieldsFromBeanMirror(reflector.reflect(javaType), objectField.getFields());
+    ObjectField objectField = new ObjectField(name);
+
+    Optional<Fields> maybeOriginalObjectFields = maybeOriginal.flatMap(original -> {
+      if (!(original instanceof ObjectField)) {
+        return Optional.empty();
+      }
+
+      ObjectField originalObject = (ObjectField) original;
+
+      return Optional.of(originalObject.getFields());
+    });
+
+    addFieldsFromBeanMirror(reflector.reflect(javaType), objectField.getFields(),
+        maybeOriginalObjectFields);
 
     return objectField;
   }

@@ -3,9 +3,8 @@ package io.github.alechenninger.lightblue;
 import static io.github.alechenninger.lightblue.matchers.GeneratorMatchers.equalToFields;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -21,10 +20,12 @@ import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import io.github.alechenninger.lightblue.javabeans.JavaBeansReflector;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -189,10 +190,9 @@ public class MetadataGeneratorTest {
   }
 
   @Test
-  public void updatesExistingMetadata() {
-    class User {
+  public void retainsDataStoreWhenUpdatingMetadata() {
+    class Entity {
       private String _id;
-      private String firstName;
 
       public String get_id() {
         return _id;
@@ -201,43 +201,142 @@ public class MetadataGeneratorTest {
       public void set_id(String _id) {
         this._id = _id;
       }
+    }
 
-      public String getFirstName() {
-        return firstName;
+    class Entity2 extends Entity {
+      private String name;
+
+      public String getName() {
+        return name;
       }
 
-      public void setFirstName(String firstName) {
-        this.firstName = firstName;
+      public void setName(String name) {
+        this.name = name;
       }
     }
 
-    @EntityName("user")
-    class User2 extends User {
-      private String lastName;
-
-      public String getLastName() {
-        return lastName;
-      }
-
-      public void setLastName(String lastName) {
-        this.lastName = lastName;
-      }
-    }
-
-    EntityMetadata existing = generator.generateMetadata(User.class);
+    EntityMetadata existing = generator.generateMetadata(Entity.class);
     TestDataStore existingDataStore = new TestDataStore();
     existing.setDataStore(existingDataStore);
-    List<Hook> existingHooks = Collections.singletonList(new Hook("testHook"));
-    existing.getHooks().setHooks(existingHooks);
+
+    EntityMetadata updated = generator.updateMetadata(existing, Entity2.class);
+
+    assertEquals(existingDataStore, updated.getDataStore());
+  }
+
+  @Test
+  public void retainsHooksWhenUpdatingMetadata() {
+    class Entity {
+      private String _id;
+
+      public String get_id() {
+        return _id;
+      }
+
+      public void set_id(String _id) {
+        this._id = _id;
+      }
+    }
+
+    class Entity2 extends Entity {
+      private String name;
+
+      public String getName() {
+        return name;
+      }
+
+      public void setName(String name) {
+        this.name = name;
+      }
+    }
+
+    EntityMetadata existing = generator.generateMetadata(Entity.class);
+    List<Hook> hooks = Collections.singletonList(new Hook("testHook"));
+    existing.getHooks().setHooks(hooks);
+
+    EntityMetadata updated = generator.updateMetadata(existing, Entity2.class);
+
+    assertEquals(1, updated.getHooks().getHooks().size());
+  }
+
+  @Test
+  public void retainsAccessWhenUpdatingMetadata() {
+    class Entity {
+      private String _id;
+
+      public String get_id() {
+        return _id;
+      }
+
+      public void set_id(String _id) {
+        this._id = _id;
+      }
+    }
+
+    class Entity2 extends Entity {
+      private String name;
+
+      public String getName() {
+        return name;
+      }
+
+      public void setName(String name) {
+        this.name = name;
+      }
+    }
+
+    EntityMetadata existing = generator.generateMetadata(Entity.class);
     existing.getAccess().getDelete().setRoles("deleter");
     existing.getAccess().getFind().setRoles("finder");
-    existing.getAccess().getInsert().setRoles("inserter");
     existing.getAccess().getUpdate().setRoles("updater");
-    existing.getFields().getField("firstName").getAccess().getUpdate().setRoles("first-name-updater");
+    existing.getAccess().getInsert().setRoles("inserter");
+
+    EntityMetadata updated = generator.updateMetadata(existing, Entity2.class);
+
+    assertThat(updated.getAccess().getDelete().getRoles(), Matchers.contains("deleter"));
+    assertThat(updated.getAccess().getFind().getRoles(), Matchers.contains("finder"));
+    assertThat(updated.getAccess().getUpdate().getRoles(), Matchers.contains("updater"));
+    assertThat(updated.getAccess().getInsert().getRoles(), Matchers.contains("inserter"));
+  }
+
+  @Test
+  public void updatesSchemaFromExistingMetadata() {
+    class Entity {
+      private String _id;
+
+      public String get_id() {
+        return _id;
+      }
+
+      public void set_id(String _id) {
+        this._id = _id;
+      }
+    }
+
+    class Entity2 extends Entity {
+      private String name;
+
+      public String getName() {
+        return name;
+      }
+
+      public void setName(String name) {
+        this.name = name;
+      }
+    }
+
+    EntityMetadata existing = generator.generateMetadata(Entity.class);
+    existing.getAccess().getDelete().setRoles("deleter");
+    existing.getAccess().getFind().setRoles("finder");
+    existing.getAccess().getUpdate().setRoles("updater");
+    existing.getAccess().getInsert().setRoles("inserter");
+
+    EntityMetadata updated = generator.updateMetadata(existing, Entity2.class);
+
+    assertTrue(updated.getFields().has("name"));
   }
 
   static class TestDataStore implements DataStore {
-
     @Override
     public String getBackend() {
       return "test";
