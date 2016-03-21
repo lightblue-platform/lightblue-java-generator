@@ -3,6 +3,7 @@ package io.github.alechenninger.lightblue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -28,7 +29,7 @@ public class Main {
 
   public static void main(String[] args) throws IOException, ClassNotFoundException {
     if (args.length < 2) {
-      System.out.println("Usage: generator models.jar com.mycompany.Model1 com.mycompany.Model2 ...");
+      print("Usage: generator models.jar com.mycompany.Model1 com.mycompany.Model2 ...");
       System.exit(1);
     }
 
@@ -39,12 +40,31 @@ public class Main {
     for (int i = 1; i < args.length; i++) {
       String className = args[i];
       Class classForName = classLoader.loadClass(className);
-      EntityMetadata metadata = generater.generateMetadata(classForName);
+      EntityInfo info = generater.generateInfo(classForName);
+
+      Path metadataJsonPath = Paths.get(info.getName() + ".json");
+      EntityMetadata metadata;
+
+      if (Files.exists(metadataJsonPath)) {
+        print(metadataJsonPath + " already exists, updating...");
+
+        JsonNode existingJsonNode = mapper.readTree(Files.readAllBytes(metadataJsonPath));
+        EntityMetadata existing = parser.parseEntityMetadata(existingJsonNode);
+
+        metadata = generater.updateMetadata(existing, classForName);
+      } else {
+        metadata = generater.generateMetadata(classForName);
+      }
+
       JsonNode metadataJson = parser.convert(metadata);
       String prettyMetadataJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(metadataJson);
-      Path metadataJsonPath = Paths.get(metadata.getName() + ".json");
       Files.write(metadataJsonPath, prettyMetadataJson.getBytes("UTF-8"));
-      System.out.println("Wrote " + metadataJsonPath);
+
+      print("Wrote " + metadataJsonPath);
     }
+  }
+
+  static void print(Object line) {
+    System.out.println(line);
   }
 }
