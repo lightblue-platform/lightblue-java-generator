@@ -11,11 +11,13 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import io.github.alechenninger.lightblue.javabeans.JavaBeansReflector;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public class Main {
   private static Extensions extensions = new Extensions();
@@ -28,17 +30,25 @@ public class Main {
   private static ObjectMapper mapper = new ObjectMapper();
 
   public static void main(String[] args) throws IOException, ClassNotFoundException {
-    if (args.length < 2) {
-      print("Usage: generator models.jar com.mycompany.Model1 com.mycompany.Model2 ...");
+    Cli cli = new Cli(args);
+
+    if (cli.helpRequested()) {
       System.exit(1);
     }
 
-    String jarPath = args[0];
-    URL jarUrl = Paths.get(jarPath).toUri().toURL();
-    URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, Main.class.getClassLoader());
+    ClassLoader classLoader = getClassLoaderToSearch(cli.jarPath());
 
-    for (int i = 1; i < args.length; i++) {
-      String className = args[i];
+    if (cli.entityClasses().isEmpty()) {
+      println("No entity classes provided.");
+      println("Example: lightblue-java-generator optional/path/to/entities.jar com.redhat.Entity1.class com.redhat.Entity2.class");
+      println("");
+      println("Help output below:");
+      println("");
+      cli.printHelpTo(System.out);
+      System.exit(1);
+    }
+
+    for (String className : cli.entityClasses()) {
       Class classForName = classLoader.loadClass(className);
       EntityInfo info = generater.generateInfo(classForName);
 
@@ -46,7 +56,7 @@ public class Main {
       EntityMetadata metadata;
 
       if (Files.exists(metadataJsonPath)) {
-        print(metadataJsonPath + " already exists, updating...");
+        println(metadataJsonPath + " already exists, updating...");
 
         JsonNode existingJsonNode = mapper.readTree(Files.readAllBytes(metadataJsonPath));
         EntityMetadata existing = parser.parseEntityMetadata(existingJsonNode);
@@ -60,11 +70,22 @@ public class Main {
       String prettyMetadataJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(metadataJson);
       Files.write(metadataJsonPath, prettyMetadataJson.getBytes("UTF-8"));
 
-      print("Wrote " + metadataJsonPath);
+      println("Wrote " + metadataJsonPath);
     }
   }
 
-  static void print(Object line) {
+  private static ClassLoader getClassLoaderToSearch(Optional<String> maybeJarPath)
+      throws MalformedURLException {
+    if (maybeJarPath.isPresent()) {
+      String jarPath = maybeJarPath.get();
+      URL jarUrl = Paths.get(jarPath).toUri().toURL();
+      return new URLClassLoader(new URL[]{jarUrl}, Main.class.getClassLoader());
+    }
+
+    return Main.class.getClassLoader();
+  }
+
+  static void println(Object line) {
     System.out.println(line);
   }
 }
