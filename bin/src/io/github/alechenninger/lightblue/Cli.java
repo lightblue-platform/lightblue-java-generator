@@ -22,7 +22,8 @@ public class Cli {
           + "searched instead.")
       .withRequiredArg();
 
-  private static final OptionSpec<Void> helpOption = parser.acceptsAll(asList("h", "?", "help"))
+  private static final OptionSpec<Void> helpOption = parser.acceptsAll(asList("h", "?", "help"),
+      "Displays this message.")
       .forHelp();
 
   private final OptionSet optionSet;

@@ -33,6 +33,7 @@ public class Main {
     Cli cli = new Cli(args);
 
     if (cli.helpRequested()) {
+      cli.printHelpTo(System.out);
       System.exit(1);
     }
 
