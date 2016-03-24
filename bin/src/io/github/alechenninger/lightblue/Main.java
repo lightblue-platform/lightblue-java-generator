@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +31,7 @@ public class Main {
   private static JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
   private static MetadataGenerator generater = new MetadataGenerator(new JavaBeansReflector());
   private static ObjectMapper mapper = new ObjectMapper();
+  private static final Charset UTF_8 = Charset.forName("UTF-8");
 
   public static void main(String[] args) throws IOException, ClassNotFoundException {
     Cli cli = new Cli(args);
@@ -55,8 +57,9 @@ public class Main {
       Class classForName = classLoader.loadClass(className);
       EntityInfo info = generater.generateInfo(classForName);
 
-      Path metadataJsonPath = outputDirectory.resolve(info.getName() + ".json");
-      EntityMetadata metadata;
+      Path metadataJsonPath = outputDirectory.resolve(info.getName() + ".json")
+          .toAbsolutePath();
+      final EntityMetadata metadata;
 
       if (Files.exists(metadataJsonPath)) {
         println(metadataJsonPath + " already exists, updating...");
@@ -70,8 +73,9 @@ public class Main {
       }
 
       JsonNode metadataJson = parser.convert(metadata);
-      String prettyMetadataJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(metadataJson);
-      Files.write(metadataJsonPath, prettyMetadataJson.getBytes("UTF-8"));
+
+      mapper.writerWithDefaultPrettyPrinter()
+          .writeValue(Files.newBufferedWriter(metadataJsonPath, UTF_8), metadataJson);
 
       println("Wrote " + metadataJsonPath);
     }

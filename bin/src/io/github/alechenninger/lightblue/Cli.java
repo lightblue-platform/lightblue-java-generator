@@ -55,7 +55,7 @@ public class Cli {
       return Optional.empty();
     }
 
-    return Optional.of(optionSet.valueOf(outputDirOption));
+    return Optional.of(optionSet.valueOf(outputDirOption).trim());
   }
 
   public Collection<String> entityClasses() {
