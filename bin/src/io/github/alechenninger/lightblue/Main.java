@@ -8,6 +8,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.mongo.metadata.MongoDataStoreParser;
 import io.github.alechenninger.lightblue.javabeans.JavaBeansReflector;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class Main {
   private static Extensions<JsonNode> extensions = new Extensions<>();
   static {
     extensions.addDefaultExtensions();
+    extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<>());
   }
   private static JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
   private static JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
