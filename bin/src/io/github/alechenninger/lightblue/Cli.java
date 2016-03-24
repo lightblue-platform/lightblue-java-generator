@@ -23,6 +23,11 @@ public class Cli {
           + "searched instead.")
       .withRequiredArg();
 
+  private static OptionSpec<String> outputDirOption = parser.acceptsAll(asList("o", "output-to"),
+      "Path to directory to dump output metadata json to. If a metadata file already exists for "
+          + "an entity at the given path, it will be updated.")
+      .withRequiredArg();
+
   private static final OptionSpec<Void> helpOption = parser.acceptsAll(asList("h", "?", "help"),
       "Displays this message.")
       .forHelp();
@@ -45,14 +50,21 @@ public class Cli {
     return Optional.of(optionSet.valueOf(jarOption));
   }
 
+  public Optional<String> outputDirectory() {
+    if (!optionSet.has(outputDirOption)) {
+      return Optional.empty();
+    }
+
+    return Optional.of(optionSet.valueOf(outputDirOption));
+  }
+
   public Collection<String> entityClasses() {
     return (Collection<String>) optionSet.nonOptionArguments();
   }
 
   public void printHelpTo(OutputStream out) throws IOException {
     PrintStream printStream = new PrintStream(out);
-    printStream.println("Usage: lightblue-java-generator [-j optional/path/to/entities.jar] "
-        + "com.redhat.Entity1 com.redhat.Entity2");
+    printStream.println("Usage: lightblue-java-generator [options] com.redhat.Entity1 com.redhat.Entity2");
     printStream.println();
     parser.printHelpOn(out);
   }

@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public class Main {
-  private static Extensions extensions = new Extensions();
+  private static Extensions<JsonNode> extensions = new Extensions<>();
   static {
     extensions.addDefaultExtensions();
   }
@@ -38,6 +38,9 @@ public class Main {
     }
 
     ClassLoader classLoader = getClassLoaderToSearch(cli.jarPath());
+    Path outputDirectory = cli.outputDirectory()
+        .map(Paths::get)
+        .orElse(Paths.get("./"));
 
     if (cli.entityClasses().isEmpty()) {
       println("No entity classes provided.");
@@ -50,7 +53,7 @@ public class Main {
       Class classForName = classLoader.loadClass(className);
       EntityInfo info = generater.generateInfo(classForName);
 
-      Path metadataJsonPath = Paths.get(info.getName() + ".json");
+      Path metadataJsonPath = outputDirectory.resolve(info.getName() + ".json");
       EntityMetadata metadata;
 
       if (Files.exists(metadataJsonPath)) {
