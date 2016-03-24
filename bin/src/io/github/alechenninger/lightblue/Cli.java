@@ -8,6 +8,7 @@ import joptsimple.OptionSpec;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -49,6 +50,10 @@ public class Cli {
   }
 
   public void printHelpTo(OutputStream out) throws IOException {
+    PrintStream printStream = new PrintStream(out);
+    printStream.println("Usage: lightblue-java-generator [-j optional/path/to/entities.jar] "
+        + "com.redhat.Entity1 com.redhat.Entity2");
+    printStream.println();
     parser.printHelpOn(out);
   }
 }

@@ -41,9 +41,6 @@ public class Main {
 
     if (cli.entityClasses().isEmpty()) {
       println("No entity classes provided.");
-      println("Example: lightblue-java-generator optional/path/to/entities.jar com.redhat.Entity1.class com.redhat.Entity2.class");
-      println("");
-      println("Help output below:");
       println("");
       cli.printHelpTo(System.out);
       System.exit(1);
