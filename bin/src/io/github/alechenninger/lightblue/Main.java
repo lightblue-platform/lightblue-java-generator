@@ -29,7 +29,7 @@ public class Main {
   }
   private static JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
   private static JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
-  private static MetadataGenerator generater = new MetadataGenerator(new JavaBeansReflector());
+  private static MetadataGenerator generator = new MetadataGenerator(new JavaBeansReflector());
   private static ObjectMapper mapper = new ObjectMapper();
   private static final Charset UTF_8 = Charset.forName("UTF-8");
 
@@ -55,22 +55,11 @@ public class Main {
 
     for (String className : cli.entityClasses()) {
       Class classForName = classLoader.loadClass(className);
-      EntityInfo info = generater.generateInfo(classForName);
+      EntityInfo info = generator.generateInfo(classForName);
 
       Path metadataJsonPath = outputDirectory.resolve(info.getName() + ".json")
           .toAbsolutePath();
-      final EntityMetadata metadata;
-
-      if (Files.exists(metadataJsonPath)) {
-        println(metadataJsonPath + " already exists, updating...");
-
-        JsonNode existingJsonNode = mapper.readTree(Files.readAllBytes(metadataJsonPath));
-        EntityMetadata existing = parser.parseEntityMetadata(existingJsonNode);
-
-        metadata = generater.updateMetadata(existing, classForName);
-      } else {
-        metadata = generater.generateMetadata(classForName);
-      }
+      EntityMetadata metadata = generateMetadata(classForName, metadataJsonPath);
 
       JsonNode metadataJson = parser.convert(metadata);
 
@@ -79,6 +68,30 @@ public class Main {
 
       println("Wrote " + metadataJsonPath);
     }
+  }
+
+  private static EntityMetadata generateMetadata(Class classForName, Path metadataJsonPath) {
+    if (Files.exists(metadataJsonPath)) {
+      println(metadataJsonPath + " already exists, updating...");
+
+      final EntityMetadata existing;
+
+      try {
+        JsonNode existingJsonNode = mapper.readTree(Files.readAllBytes(metadataJsonPath));
+        existing = parser.parseEntityMetadata(existingJsonNode);
+      } catch (Exception e) {
+        e.printStackTrace();
+
+        println("Failed to parse existing metadata.");
+        println("Generating new metadata instead of updating.");
+
+        return generator.generateMetadata(classForName);
+      }
+
+      return generator.updateMetadata(existing, classForName);
+    }
+
+    return generator.generateMetadata(classForName);
   }
 
   private static ClassLoader getClassLoaderToSearch(Optional<String> maybeJarPath)
