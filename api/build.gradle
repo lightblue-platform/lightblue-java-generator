@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-group 'io.github.alechenninger.lightblue'
+group 'com.redhat.lightblue.generator;'
 project.version = '0.1.1-SNAPSHOT'
 
 sourceCompatibility = 1.7

@@ -1,4 +1,4 @@
-group 'io.github.alechenninger.lightblue'
+group 'com.redhat.lightblue.generator'
 version '0.1.0-SNAPSHOT'
 
 apply plugin: 'java'
@@ -6,7 +6,7 @@ apply plugin: 'maven'
 apply plugin: 'application'
 
 sourceCompatibility = 1.8
-mainClassName = 'io.github.alechenninger.lightblue.Main'
+mainClassName = 'com.redhat.lightblue.generator.Main'
 applicationName = 'lightblue-java-generator'
 
 repositories {
