@@ -1,4 +1,4 @@
-group 'io.github.alechenninger.lightblue'
+group 'com.redhat.lightblue.generator'
 version '0.1.0-SNAPSHOT'
 
 apply plugin: 'java'
