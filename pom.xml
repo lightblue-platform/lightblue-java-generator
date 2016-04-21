@@ -45,14 +45,17 @@
       <repository>
         <id>ossrh</id>
         <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        <!--<url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
       </repository>
+      <snapshotRepository>
+        <id>ossrh</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </snapshotRepository>
     </distributionManagement>
 
     <modules>
         <module>api</module>
-        <module>bin</module>
         <module>lib</module>
+        <module>bin</module>
     </modules>
 
     <properties>
@@ -164,7 +167,7 @@
                 <configuration>
                   <tagNameFormat>V@{project.version}</tagNameFormat>
                   <autoVersionSubmodules>true</autoVersionSubmodules>
-                  <useReleaseProfile>false</useReleaseProfile>
+                  <useReleaseProfile>true</useReleaseProfile>
                   <releaseProfiles>release</releaseProfiles>
                   <goals>deploy</goals>
                 </configuration>
