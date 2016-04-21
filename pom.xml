@@ -24,8 +24,9 @@
     <artifactId>lightblue-java-generator-pom</artifactId>
     <packaging>pom</packaging>
     <version>0.1.0-SNAPSHOT</version>
+    <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <description>lightblue Java Generator</description>
-
+    <url>https://github.com/lightblue-platform/lightblue-java-generator</url>
     <licenses>
       <license>
         <name>GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007</name>
@@ -51,6 +52,29 @@
         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       </snapshotRepository>
     </distributionManagement>
+
+    <developers>
+      <developer>
+        <id>alechenninger</id>
+        <name>Alec Henninger</name>
+        <email>ahenning@redhat.com</email>
+        <organization>Red Hat</organization>
+        <roles>
+          <role>developer</role>
+        </roles>
+        <timezone>-5</timezone>
+      </developer>
+      <developer>
+        <id>dhaynes</id>
+        <name>Derek Haynes</name>
+        <email>dhaynes@redhat.com</email>
+        <organization>Red Hat</organization>
+        <roles>
+          <role>developer</role>
+        </roles>
+        <timezone>+1</timezone>
+      </developer>
+    </developers>
 
     <modules>
         <module>api</module>
