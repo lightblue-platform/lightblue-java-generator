@@ -23,7 +23,7 @@
     <groupId>com.redhat.lightblue.generator</groupId>
     <artifactId>lightblue-java-generator-pom</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.0</version>
     <description>lightblue Java Generator</description>
 
     <licenses>
@@ -38,7 +38,7 @@
       <connection>scm:git:https://github.com/lightblue-platform/lightblue-java-generator.git</connection>
       <developerConnection>scm:git:git@github.com:lightblue-platform/lightblue-java-generator.git</developerConnection>
       <url>https://github.com/lightblue-platform/lightblue-java-generator</url>
-      <tag>HEAD</tag>
+      <tag>V0.1.0</tag>
     </scm>
 
     <distributionManagement>
