@@ -68,7 +68,7 @@
         <version.maven-compiler-plugin>3.3</version.maven-compiler-plugin>
         <version.maven-surefire-plugin>2.19</version.maven-surefire-plugin>
         <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
-        <version.maven-coveralls-plugin>3.01</version.maven-coveralls-plugin>
+        <version.maven-coveralls-plugin>3.0.1</version.maven-coveralls-plugin>
         <version.maven-cobertura-plugin>2.6</version.maven-cobertura-plugin>
         <version.maven-release-plugin>2.5</version.maven-release-plugin>
         <version.maven-nexus-staging-plugin>1.6.2</version.maven-nexus-staging-plugin>
