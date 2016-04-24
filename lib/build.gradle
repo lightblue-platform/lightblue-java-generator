@@ -28,7 +28,7 @@ sourceSets {
 }
 
 dependencies {
-  compile group: 'com.redhat.lightblue', name: 'lightblue-core-metadata', version: '1.11.0'
+  compile group: 'com.redhat.lightblue', name: 'lightblue-core-metadata', version: '1.14.0'
   compile project(':lightblue-java-generator-api')
 
   testCompile group: 'junit', name: 'junit', version: '4.12'

@@ -88,8 +88,8 @@
     </modules>
 
     <properties>
-        <version.lightblue-core-metadata>1.11.0</version.lightblue-core-metadata>
-        <version.lightblue-mongo>1.11.0</version.lightblue-mongo>
+        <version.lightblue-core-metadata>1.14.0</version.lightblue-core-metadata>
+        <version.lightblue-mongo>1.14.0</version.lightblue-mongo>
         <version.jopt>5.0</version.jopt>
         <version.slf4j>1.7.19</version.slf4j>
         <version.junit>4.12</version.junit>
