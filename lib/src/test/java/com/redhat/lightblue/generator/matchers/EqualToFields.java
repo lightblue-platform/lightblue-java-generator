@@ -24,11 +24,6 @@ public class EqualToFields extends TypeSafeDiagnosingMatcher<Fields> {
   protected boolean matchesSafely(Fields item, Description mismatchDescription) {
     boolean matches = true;
 
-    if (!Objects.equals(fields.getProperties(), item.getProperties())) {
-      matches = false;
-      mismatchDescription.appendText("properties were ").appendValue(item.getProperties());
-    }
-
     List<Matcher<? super Field>> matchingAllFields = Arrays
         .stream(Iterables.toArray(fields::getFields, Field.class))
         .map(EqualToField::new)
