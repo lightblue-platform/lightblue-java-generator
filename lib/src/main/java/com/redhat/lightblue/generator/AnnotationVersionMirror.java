@@ -3,12 +3,15 @@ package com.redhat.lightblue.generator;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 public class AnnotationVersionMirror implements VersionMirror {
+  private final Class<?> bean;
   private final Optional<Version> version;
 
   public AnnotationVersionMirror(Class<?> bean) {
+    this.bean = Objects.requireNonNull(bean, "bean");
     this.version = Optional.ofNullable(bean.getAnnotation(Version.class));
   }
 
@@ -18,9 +21,15 @@ public class AnnotationVersionMirror implements VersionMirror {
 
   @Override
   public String getVersion() {
-    return version.map(Version::value)
-        .orElseThrow(() -> new MirrorException(
+    Version annotation = version.orElseThrow(() -> new MirrorException(
             new NoSuchElementException("No version annotation present")));
+
+    if (annotation.preferImplementationVersion()) {
+      return Optional.ofNullable(bean.getPackage().getImplementationVersion())
+          .orElse(annotation.value());
+    }
+
+    return annotation.value();
   }
 
   @Override
