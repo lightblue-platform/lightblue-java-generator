@@ -38,10 +38,12 @@ public @interface Version {
         throw new NoSuchElementException("No Version annotation on class: " + entityClass);
       }
 
-      if (annotation.preferImplementationVersion()) {
-        return Optional.ofNullable(entityClass.getPackage().getImplementationVersion())
-            .orElse(annotation.value());
+      String implementationVersion = entityClass.getPackage().getImplementationVersion();
+
+      if (annotation.preferImplementationVersion() && implementationVersion != null) {
+        return implementationVersion;
       }
+
       return annotation.value();
     }
   }
