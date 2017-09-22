@@ -94,6 +94,7 @@
         <version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
         <version.maven-coveralls-plugin>3.0.1</version.maven-coveralls-plugin>
         <version.maven-cobertura-plugin>2.7</version.maven-cobertura-plugin>
+        <version.sonar-maven-plugin>3.3.0.603</version.sonar-maven-plugin>
         <version.maven-release-plugin>2.5.3</version.maven-release-plugin>
         <version.maven-nexus-staging-plugin>1.6.2</version.maven-nexus-staging-plugin>
         <version.maven-source-plugin>2.2.1</version.maven-source-plugin>
@@ -174,6 +175,11 @@
                   <!-- aggregated reports for multi-module projects -->
                   <aggregate>true</aggregate>
                 </configuration>
+              </plugin>
+              <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${version.sonar-maven-plugin}</version>
               </plugin>
         </plugins>
     </build>
