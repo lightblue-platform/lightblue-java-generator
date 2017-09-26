@@ -101,6 +101,8 @@
         <version.maven-javadoc-plugin>2.9.1</version.maven-javadoc-plugin>
         <version.jdk>1.8</version.jdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonar.projectName>lightblue-platform: ${project.artifactId}</sonar.projectName>
+        <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
     </properties>
 
     <dependencyManagement>
