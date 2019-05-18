@@ -84,7 +84,8 @@
     </modules>
 
     <properties>
-        <version.lightblue>1.15.0</version.lightblue>
+        <version.lightblue>2.17.0</version.lightblue>
+        <version.lightblue-mongo>1.34.0</version.lightblue-mongo>
         <version.jopt>5.0</version.jopt>
         <version.slf4j>1.7.19</version.slf4j>
         <version.junit>4.12</version.junit>
@@ -115,7 +116,7 @@
             <dependency>
                 <groupId>com.redhat.lightblue.mongo</groupId>
                 <artifactId>lightblue-mongo</artifactId>
-                <version>${version.lightblue}</version>
+                <version>${version.lightblue-mongo}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
