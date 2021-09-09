@@ -85,7 +85,7 @@
 
     <properties>
         <version.lightblue>2.17.0</version.lightblue>
-        <version.lightblue-mongo>1.34.0</version.lightblue-mongo>
+        <version.lightblue-mongo>1.36.0-SNAPSHOT</version.lightblue-mongo>
         <version.jopt>5.0</version.jopt>
         <version.slf4j>1.7.19</version.slf4j>
         <version.junit>4.12</version.junit>
