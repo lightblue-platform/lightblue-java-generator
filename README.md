@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/lightblue-platform/lightblue-java-generator.svg?branch=master)](https://travis-ci.org/lightblue-platform/lightblue-java-generator.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/lightblue-platform/lightblue-java-generator/badge.svg?branch=master&service=github)](https://coveralls.io/github/lightblue-platform/lightblue-java-generator?branch=master)
 [![Stories in Ready](https://badge.waffle.io/lightblue-platform/lightblue-java-generator.png?label=ready&title=Ready)](https://waffle.io/lightblue-platform/lightblue-java-generator)
 
