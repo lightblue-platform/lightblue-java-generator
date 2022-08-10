@@ -28,7 +28,7 @@
     <groupId>com.redhat.lightblue.generator</groupId>
     <artifactId>lightblue-java-generator-pom</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.8-SNAPSHOT</version>
+    <version>0.1.8</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <description>lightblue Java Generator</description>
     <url>https://github.com/lightblue-platform/lightblue-java-generator</url>
@@ -44,7 +44,7 @@
       <connection>scm:git:https://github.com/lightblue-platform/lightblue-java-generator.git</connection>
       <developerConnection>scm:git:git@github.com:lightblue-platform/lightblue-java-generator.git</developerConnection>
       <url>https://github.com/lightblue-platform/lightblue-java-generator</url>
-      <tag>V0.1.0</tag>
+      <tag>V0.1.8</tag>
     </scm>
 
     <distributionManagement>
