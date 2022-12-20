@@ -84,8 +84,8 @@
     </modules>
 
     <properties>
-        <version.lightblue-core>2.18.0-SNAPSHOT</version.lightblue-core>
-        <version.lightblue-mongo>1.40.0-SNAPSHOT</version.lightblue-mongo>
+        <version.lightblue-core>2.18.0</version.lightblue-core>
+        <version.lightblue-mongo>1.40.0</version.lightblue-mongo>
         <version.jopt>5.0</version.jopt>
         <version.slf4j>1.7.19</version.slf4j>
         <version.junit>4.13.1</version.junit>
